@@ -1,0 +1,5 @@
+{
+  "serverPort": 8080,
+  "prettyPrint": true,
+  "bucketPath": "~~/stor/s3_buckets"
+}

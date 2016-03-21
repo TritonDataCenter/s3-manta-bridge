@@ -1,0 +1,12 @@
+{
+  "name": "s3-manta-bridge",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./src/index.js"
+  },
+  "dependencies": {
+    "restify": "^4.0.4",
+    "xmlbuilder": "^7.0.0"
+  }
+}

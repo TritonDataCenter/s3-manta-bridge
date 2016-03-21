@@ -1,4 +1,5 @@
 var builder = require('xmlbuilder');
+var config = require('../config.json');
 
 var owner = {
     'ID': 'idval',
@@ -34,12 +35,8 @@ module.exports = {
 
         var xml = builder
             .create(data, {'version': '1.0', 'encoding': 'UTF-8'})
-            .end({ pretty: true });
-
-        console.log(xml);
-
+            .end({ pretty: config.prettyPrint });
         res.send(xml);
-
         return next();
     }
 }

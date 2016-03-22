@@ -1,5 +1,23 @@
 {
   "serverPort": 8080,
   "prettyPrint": true,
-  "bucketPath": "~~/stor/s3_buckets"
+  "bucketPath": "~~/stor/s3_buckets",
+  "baseSubdomain": "s3",
+  "maxRequestBodySize": 1073741824,
+  "s3Version": "2006-03-01",
+  "accessKey": "FAKEACCESSKEYANYSTR1",
+  "secretKey": "anystringasasecretkeyshouldworkintheory1",
+  "maxAllowedSkewMilliseconds": "900000",
+  "defaultDurability": 2,
+  "storageClassMappingToDurability": {
+    "STANDARD": 2,
+    "STANDARD_IA": 2,
+    "REDUCED_REDUNDANCY": 1,
+    "GLACIER": 1
+  },
+  "durabilityMappingToStorageClass": {
+    "2": "STANDARD",
+    "1": "REDUCED_REDUNDANCY"
+  }
 }
+

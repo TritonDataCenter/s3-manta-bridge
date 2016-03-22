@@ -1,12 +1,13 @@
 "use strict";
 
-var assert = require('assert-plus');
-var bunyan = require('bunyan');
-var clone = require('clone');
-
-var app = require('./lib');
+var mod_assert = require('assert-plus');
+var mod_bunyan = require('bunyan');
+var mod_clone = require('clone');
+var mod_gtunnel = require('global-tunnel');
 
 ///--- Globals
+
+var app = require('./lib');
 
 var DEFAULTS = {
     file: process.cwd() + '/etc/config.json',
@@ -15,22 +16,50 @@ var DEFAULTS = {
 
 var NAME = 's3-manta-bridge';
 
-var LOG = bunyan.createLogger({
+var LOG = mod_bunyan.createLogger({
     name: NAME,
     level: (process.env.LOG_LEVEL || 'info'),
     stream: process.stdout
 });
 
-function run(options) {
-    assert.object(options);
+if (process.env.http_proxy || process.env.https_proxy) {
+    LOG.info("Requests to Manta are being sent through a proxy");
+    mod_gtunnel.initialize();
+}
 
-    var opts = clone(options);
+function run(options) {
+    mod_assert.object(options);
+
+    var opts = mod_clone(options);
     opts.log = LOG;
     opts.name = NAME;
 
     var server = app.createServer(opts);
     server.listen(options.serverPort, function () {
         opts.log.info('%s listening at %s', server.name, server.url);
+    });
+
+    function shutdown(cb) {
+        server.close(function () {
+            server.log.debug('Closing Manta client');
+            server.options.mantaClient.close();
+            server.log.debug('Closing Restify');
+
+            if (cb) {
+                cb();
+            }
+
+            process.exit(0);
+        });
+    }
+
+    process.on('SIGTERM', shutdown);
+    process.on('SIGINT', shutdown);
+
+    process.once('SIGUSR2', function () {
+        shutdown(function () {
+            process.kill(process.pid, 'SIGUSR2');
+        });
     });
 }
 

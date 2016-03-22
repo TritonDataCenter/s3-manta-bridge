@@ -6,10 +6,10 @@
     "start": "node ./src/index.js"
   },
   "dependencies": {
-    "assert": "^1.3.0",
+    "assert-plus": "^1.0.0",
+    "bunyan": "^1.8.0",
     "manta": "^2.0.5",
     "restify": "^4.0.4",
-    "vasync": "^1.6.3",
     "xmlbuilder": "^7.0.0"
   }
 }

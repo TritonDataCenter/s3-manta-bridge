@@ -14,9 +14,11 @@
     "global-tunnel": "^1.2.0",
     "manta": "^2.0.5",
     "restify": "^4.0.4",
+    "vasync": "^1.6.4",
     "xmlbuilder": "^7.0.0"
   },
   "devDependencies": {
+    "aws-sdk": "^2.2.45",
     "faucet": "0.0.1",
     "tape": "^4.5.1"
   }

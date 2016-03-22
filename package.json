@@ -1,5 +1,8 @@
 {
   "name": "s3-manta-bridge",
+  "description": "Use the S3 API to interface with a Manta object store",
+  "author": "Elijah Zupancic",
+  "license": "MPL-2.0",
   "version": "0.0.0",
   "private": true,
   "scripts": {
@@ -12,5 +15,9 @@
     "manta": "^2.0.5",
     "restify": "^4.0.4",
     "xmlbuilder": "^7.0.0"
+  },
+  "devDependencies": {
+    "faucet": "0.0.1",
+    "tape": "^4.5.1"
   }
 }

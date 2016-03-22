@@ -3,6 +3,7 @@
 var assert = require('assert-plus');
 var bunyan = require('bunyan');
 var clone = require('clone');
+var globalTunnel = require('global-tunnel');
 
 var app = require('./lib');
 
@@ -20,6 +21,11 @@ var LOG = bunyan.createLogger({
     level: (process.env.LOG_LEVEL || 'info'),
     stream: process.stdout
 });
+
+if (process.env.http_proxy || process.env.https_proxy) {
+    LOG.info("Requests to Manta are being sent through a proxy");
+    globalTunnel.initialize();
+}
 
 function run(options) {
     assert.object(options);

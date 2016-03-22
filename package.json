@@ -8,6 +8,7 @@
   "dependencies": {
     "assert-plus": "^1.0.0",
     "bunyan": "^1.8.0",
+    "global-tunnel": "^1.2.0",
     "manta": "^2.0.5",
     "restify": "^4.0.4",
     "xmlbuilder": "^7.0.0"

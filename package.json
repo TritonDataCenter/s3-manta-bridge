@@ -19,11 +19,14 @@
   },
   "devDependencies": {
     "aws-sdk": "^2.2.45",
+    "bunyan": "^1.8.0",
     "faucet": "0.0.1",
+    "json": "^9.0.3",
     "node-uuid": "^1.4.7",
-    "once": "^1.3.3",
     "proxy-agent": "^2.0.0",
-    "sync": "^0.2.5",
-    "tape": "^4.5.1"
+    "sync-request": "^3.0.0",
+    "tape": "^4.5.1",
+    "util": "^0.10.3",
+    "wrapping-tape": "0.0.3"
   }
 }

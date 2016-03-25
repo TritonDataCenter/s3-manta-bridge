@@ -27,6 +27,10 @@ if (process.env.http_proxy || process.env.https_proxy) {
     globalTunnel.initialize();
 }
 
+function shutdown() {
+
+}
+
 function run(options) {
     assert.object(options);
 
@@ -37,6 +41,29 @@ function run(options) {
     var server = app.createServer(opts);
     server.listen(options.serverPort, function () {
         opts.log.info('%s listening at %s', server.name, server.url);
+    });
+
+    function shutdown(cb) {
+        server.close(function () {
+            server.log.debug('Closing Manta client');
+            server.mantaClient.close();
+            server.log.debug('Closing Restify');
+
+            if (cb) {
+                cb();
+            }
+
+            process.exit(0);
+        });
+    }
+
+    process.on('SIGTERM', shutdown);
+    process.on('SIGINT', shutdown);
+
+    process.once('SIGUSR2', function () {
+        shutdown(function () {
+            process.kill(process.pid, 'SIGUSR2');
+        });
     });
 }
 

@@ -3,28 +3,15 @@
 var request = require('sync-request');
 var helper = require('./helper');
 var vasync = require('vasync');
-/** @type {MantaClient} */
-var AWS = require('aws-sdk');
-var proxy = require('proxy-agent');
 var uuid = require('node-uuid');
 var util = require('util');
 
-var test = require('wrapping-tape')({
-    setup: helper.startup,
-    teardown: helper.cleanup
-});
-
 ///--- Globals
 
+/** @type {MantaClient} */
 var manta = helper.mantaClient;
-
-AWS.config.update({
-    httpOptions: { agent: proxy('http://localhost:8888') },
-    sslEnabled: false,
-    credentials: new AWS.Credentials('', '', null)
-});
-
-var s3 = new AWS.S3();
+var s3 = helper.s3Client;
+var test = helper.test;
 
 /////--- Tests
 

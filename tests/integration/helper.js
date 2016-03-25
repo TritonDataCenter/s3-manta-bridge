@@ -7,6 +7,8 @@ var config = require('../../etc/config.json');
 
 /** @type {MantaClient} */
 var manta = require('../../lib/manta_client').client();
+/** @type {AWS.S3} */
+var s3 = require('./s3_client').client();
 
 function createLogger(name, stream) {
     var log = bunyan.createLogger({
@@ -20,7 +22,7 @@ function createLogger(name, stream) {
     return log;
 }
 
-function startup(tape) {
+function setup(tape) {
     assert.object(config);
 
     manta.mkdirp(config.bucketPath, function (err) {
@@ -29,7 +31,7 @@ function startup(tape) {
     });
 }
 
-function cleanup(tape) {
+function teardown(tape) {
     assert.object(config);
     manta.rmr(config.bucketPath, {}, function (err) {
         // do nothing
@@ -39,10 +41,20 @@ function cleanup(tape) {
     });
 }
 
+var tape = require('tape');
+var test = require('wrapping-tape')({
+    setup: setup,
+    teardown: teardown
+});
+
+tape.onFinish(function cleanup() {
+    manta.close();
+});
+
 module.exports = {
     config: config,
     createLogger: createLogger,
     mantaClient: manta,
-    startup: startup,
-    cleanup: cleanup
+    s3Client: s3,
+    test: test
 };

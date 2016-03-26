@@ -1,13 +1,13 @@
 "use strict";
 
-var assert = require('assert-plus');
-var bunyan = require('bunyan');
-var clone = require('clone');
-var globalTunnel = require('global-tunnel');
-
-var app = require('./lib');
+var mod_assert = require('assert-plus');
+var mod_bunyan = require('bunyan');
+var mod_clone = require('clone');
+var mod_gtunnel = require('global-tunnel');
 
 ///--- Globals
+
+var app = require('./lib');
 
 var DEFAULTS = {
     file: process.cwd() + '/etc/config.json',
@@ -16,7 +16,7 @@ var DEFAULTS = {
 
 var NAME = 's3-manta-bridge';
 
-var LOG = bunyan.createLogger({
+var LOG = mod_bunyan.createLogger({
     name: NAME,
     level: (process.env.LOG_LEVEL || 'info'),
     stream: process.stdout
@@ -24,17 +24,13 @@ var LOG = bunyan.createLogger({
 
 if (process.env.http_proxy || process.env.https_proxy) {
     LOG.info("Requests to Manta are being sent through a proxy");
-    globalTunnel.initialize();
-}
-
-function shutdown() {
-
+    mod_gtunnel.initialize();
 }
 
 function run(options) {
-    assert.object(options);
+    mod_assert.object(options);
 
-    var opts = clone(options);
+    var opts = mod_clone(options);
     opts.log = LOG;
     opts.name = NAME;
 

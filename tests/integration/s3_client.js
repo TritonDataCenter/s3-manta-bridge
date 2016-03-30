@@ -28,7 +28,7 @@ function client() {
         credentials: new AWS.Credentials('', '', null)
     });
 
-    var client = new AWS.S3();
+    var client = new AWS.S3({ apiVersion: '2006-03-01' });
     assert.ok(client);
     return client;
 }

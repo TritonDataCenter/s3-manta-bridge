@@ -159,3 +159,26 @@ test("can't delete bucket that doesn't exist", function(t) {
         t.end();
     });
 });
+
+test('can HEAD request bucket and find out if it exists', function(t) {
+    var bucket = 'predictable-bucket-name';
+    var mantaPath = helper.config.bucketPath + '/' + bucket;
+
+    manta.mkdirp(mantaPath, function (err) {
+        t.ifError(err, 'Expecting mkdirp to succeed for ' + bucket);
+
+        s3.headBucket({ Bucket: bucket}, function(err, data) {
+            t.ifError(err, 'Expecting HEAD request to succeed for: ' + bucket);
+            t.end();
+        });
+    });
+});
+
+test("can HEAD request bucket and find out if it doesn't exist", function(t) {
+    var bucket = 'predictable-bucket-name';
+
+    s3.headBucket({ Bucket: bucket}, function(err) {
+        t.ok(err, 'Expecting HEAD request to fail. Message: ' + err.message);
+        t.end();
+    });
+});

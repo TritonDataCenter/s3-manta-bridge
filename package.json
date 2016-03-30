@@ -15,9 +15,9 @@
     "lodash": "^4.6.1",
     "manta": "^2.0.5",
     "restify": "^4.0.4",
-    "vasync": "^1.6.4",
     "util": "^0.10.3",
-    "xml-stream": "^0.4.5",
+    "vasync": "^1.6.4",
+    "verror": "^1.6.1",
     "xmlbuilder": "^7.0.0"
   },
   "devDependencies": {

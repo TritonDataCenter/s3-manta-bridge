@@ -83,3 +83,30 @@ test('parseSubdomain - reject domain beginning with dot', function (t) {
     );
     t.end();
 });
+
+test('splitFirstDirectory - can parse first directory from typical path', function(t) {
+    var path = '/root/first/second/file.txt';
+    var result = utils.splitFirstDirectory(path);
+
+    t.equal(result.first, '/root', 'expecting first directory to be extracted');
+    t.equal(result.remaining, 'first/second/file.txt', 'expecting remaining path to be returned');
+    t.end();
+});
+
+test('splitFirstDirectory - can deal with root path (/)', function(t) {
+    var path = '/';
+    var result = utils.splitFirstDirectory(path);
+
+    t.equal(result.first, '/', 'expecting root directory');
+    t.equal(result.remaining, '', 'expecting empty string');
+    t.end();
+});
+
+test('splitFirstDirectory - can with relative paths', function(t) {
+    var path = '/dir/path/../file.txt';
+    var result = utils.splitFirstDirectory(path);
+
+    t.equal(result.first, '/dir', 'expecting first directory to be extracted');
+    t.equal(result.remaining, 'file.txt', 'expecting relative remaining path to be resolved');
+    t.end();
+});

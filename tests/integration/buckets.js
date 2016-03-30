@@ -17,22 +17,34 @@ var test = helper.test;
 /////--- Tests
 
 test('server is alive', function (t) {
-    t.plan(1);
     var port = helper.config.serverPort;
     var host = 'http://localhost:' + port;
     var res = mod_request('HEAD', host);
 
     t.equal(res.statusCode, 200, "Expecting server to be reachable at " + host);
+    t.end();
+});
+
+test('test bucket subdomain is active', function(t) {
+    var bucket = 'predictable-bucket-name';
+
+    var port = helper.config.serverPort;
+    var host = 'http://' + bucket + '.localhost:' + port;
+    var res = mod_request('HEAD', host);
+
+    /* A 404 means that we connected and it is the right status code
+     * because there is no bucket at that location currently. */
+    t.equal(res.statusCode, 404, "Expecting server to be reachable at " + host);
+    t.end();
 });
 
 test('can list buckets - no buckets', function (t) {
-   t.plan(2);
-
    s3.listBuckets(function(err, data) {
        t.ifError(err, 'Expecting S3 buckets list call to succeed');
 
        var buckets = data.Buckets;
        t.equal(buckets.length, 0, 'Expecting no buckets to return');
+       t.end();
    });
 });
 

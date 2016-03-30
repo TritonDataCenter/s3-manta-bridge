@@ -42,7 +42,7 @@ function run(options) {
     function shutdown(cb) {
         server.close(function () {
             server.log.debug('Closing Manta client');
-            server.mantaClient.close();
+            server.options.mantaClient.close();
             server.log.debug('Closing Restify');
 
             if (cb) {

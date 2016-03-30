@@ -2,5 +2,6 @@
   "serverPort": 8080,
   "prettyPrint": true,
   "bucketPath": "~~/stor/s3_buckets",
-  "baseSubdomain": "s3"
+  "baseSubdomain": "s3",
+  "maxRequestBodySize": 1073741824
 }

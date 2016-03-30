@@ -109,11 +109,28 @@ test('can add bucket', function(t) {
     var bucket = 'predictable-bucket-name';
     s3.createBucket({ Bucket: bucket}, function(err, data) {
         t.ifError(err, 'No error when creating [' + bucket + '] bucket');
-        console.log(data);
 
         var mantaPath = helper.config.bucketPath + '/' + bucket;
         manta.info(mantaPath, function(err) {
             t.ifError(err, 'Bucket exists at Manta path: ' + mantaPath);
+            t.end();
+        });
+    });
+});
+
+
+test("can't add the same bucket twice", function(t) {
+    var bucket = 'predictable-bucket-name';
+    s3.createBucket({ Bucket: bucket}, function(err, data) {
+        t.ifError(err, 'No error when creating [' + bucket + '] bucket');
+
+        var mantaPath = helper.config.bucketPath + '/' + bucket;
+        manta.info(mantaPath, function(err) {
+            t.ifError(err, 'Bucket exists at Manta path: ' + mantaPath);
+        });
+
+        s3.createBucket({ Bucket: bucket}, function(err) {
+            t.ok(err, 'Error should be thrown on duplicate bucket. Error: ' + err.message);
             t.end();
         });
     });

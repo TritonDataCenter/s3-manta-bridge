@@ -16,6 +16,7 @@
     "manta": "^2.0.5",
     "restify": "^4.0.4",
     "vasync": "^1.6.4",
+    "xml-stream": "^0.4.5",
     "xmlbuilder": "^7.0.0"
   },
   "devDependencies": {

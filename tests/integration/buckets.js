@@ -130,7 +130,6 @@ test('can add bucket', function(t) {
     });
 });
 
-
 test("can't add the same bucket twice", function(t) {
     var bucket = 'predictable-bucket-name';
     s3.createBucket({ Bucket: bucket}, function(err, data) {
@@ -143,12 +142,14 @@ test("can't add the same bucket twice", function(t) {
 
         s3.createBucket({ Bucket: bucket}, function(err) {
             t.ok(err, 'Error should be thrown on duplicate bucket. Error: ' + err.message);
+            t.equal(err.code, 'BucketAlreadyExists', 'Code should be BucketAlreadyExists. Actually: ' + err.code);
+            t.equal(err.statusCode, 409, 'Status code should be 409. Actually: ' + err.statusCode);
             t.end();
         });
     });
 });
 
-test('can delete bucket', function(t) {
+test('can delete bucket', function (t) {
     var bucket = 'predictable-bucket-name';
 
     var mantaPath = helper.config.bucketPath + '/' + bucket;
@@ -156,9 +157,13 @@ test('can delete bucket', function(t) {
     manta.mkdirp(mantaPath, function (err) {
         t.ifError(err, 'Expecting mkdirp to succeed for ' + bucket);
 
-        s3.deleteBucket({ Bucket: bucket}, function(err, data) {
-            t.ifError(err, 'Expecting delete bucket to succeed for: ' + bucket);
-            t.end();
+        manta.info(mantaPath, function (err) {
+            t.ifError(err, 'Expecting bucket to exist');
+
+            s3.deleteBucket({ Bucket: bucket}, function(err) {
+                t.ifError(err, 'Expecting delete bucket to succeed for: ' + bucket);
+                t.end();
+            });
         });
     });
 });
@@ -168,7 +173,26 @@ test("can't delete bucket that doesn't exist", function(t) {
 
     s3.deleteBucket({ Bucket: bucket}, function(err) {
         t.ok(err, 'Expecting delete bucket to fail. Message: ' + err.message);
+        t.equal(err.code, 'NoSuchBucket', 'Code should be NoSuchBucket. Actually: ' + err.code);
+        t.equal(err.statusCode, 404, 'Status code should be 404. Actually: ' + err.statusCode);
         t.end();
+    });
+});
+
+test("can't delete bucket that is not empty", function(t) {
+    var bucket = 'predictable-bucket-name';
+
+    var mantaPath = helper.config.bucketPath + '/' + bucket + "/additional-dir";
+
+    manta.mkdirp(mantaPath, function (err) {
+        t.ifError(err, 'Expecting mkdirp to succeed for ' + bucket);
+
+        s3.deleteBucket({ Bucket: bucket}, function(err) {
+            t.ok(err, 'Expecting error because bucket is not empty. Message: ' + err.message);
+            t.equal(err.code, 'BucketNotEmpty', 'Code should be BucketNotEmpty. Actually: ' + err.code);
+            t.equal(err.statusCode, 409, 'Status code should be 409. Actually: ' + err.statusCode);
+            t.end();
+        });
     });
 });
 
@@ -191,6 +215,8 @@ test("can HEAD request bucket and find out if it doesn't exist", function(t) {
 
     s3.headBucket({ Bucket: bucket}, function(err) {
         t.ok(err, 'Expecting HEAD request to fail. Message: ' + err.message);
+        t.equal(err.code, 'NotFound', 'Code should be NotFound. Actually: ' + err.code);
+        t.equal(err.statusCode, 404, 'Status code should be 404. Actually: ' + err.statusCode);
         t.end();
     });
 });

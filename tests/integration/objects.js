@@ -39,28 +39,55 @@ test('test bucket subdomain is active', function(t) {
     t.end();
 });
 
-test('can add an object', function(t) {
+// test('can add an object', function(t) {
+//     var bucket = 'predictable-bucket-name';
+//     var object = 'sample.txt';
+//     var filepath = '../data/' + object;
+//
+//     mod_fs.readFile(filepath, function (err, data) {
+//         t.ifError(err, filepath + ' read without problems');
+//         s3.createBucket({ Bucket: bucket}, function(err) {
+//             t.ifError(err, 'No error when creating [' + bucket + '] bucket');
+//
+//             var params = {
+//                 Bucket: bucket,
+//                 Key: object,
+//                 Body: data
+//             };
+//
+//             s3.putObject(params, function(err, data) {
+//                 if (err) {
+//                     t.fail(err.message);
+//                 }
+//                 t.end();
+//             });
+//         });
+//     });
+// });
+
+test('can get an object', function(t) {
     var bucket = 'predictable-bucket-name';
     var object = 'sample.txt';
     var filepath = '../data/' + object;
+    var mantaDir = helper.config.bucketPath + '/' + bucket;
+    var mantaPath = mantaDir + '/' + object;
 
-    mod_fs.readFile(filepath, function (err, data) {
-        t.ifError(err, filepath + ' read without problems');
-        s3.createBucket({ Bucket: bucket}, function(err) {
-            t.ifError(err, 'No error when creating [' + bucket + '] bucket');
+    var fileStream = mod_fs.createReadStream(filepath);
+
+    manta.mkdirp(mantaDir, function(err) {
+        t.ifError(err, 'added ' + mantaDir + ' without problems');
+
+        manta.put(mantaPath, fileStream, function (err) {
+            t.ifError(err, 'added ' + mantaPath + ' without problems');
 
             var params = {
                 Bucket: bucket,
-                Key: object,
-                Body: data
+                Key: object
             };
 
-            s3.putObject(params, function(err, data) {
-                if (err) {
-                    t.fail(err.message);
-                }
-                t.end();
-            });
+            var s3obj = s3.getObject(params);
         });
+
+        fileStream.close();
     });
 });

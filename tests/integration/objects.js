@@ -6,6 +6,7 @@ var mod_assert = require('assert-plus');
 var mod_request = require('sync-request');
 var mod_vasync = require('vasync');
 var mod_uuid = require('node-uuid');
+var mod_util = require('util');
 
 ///--- Globals
 var helper = require('./helper');
@@ -39,31 +40,31 @@ test('test bucket subdomain is active', function(t) {
     t.end();
 });
 
-// test('can add an object', function(t) {
-//     var bucket = 'predictable-bucket-name';
-//     var object = 'sample.txt';
-//     var filepath = '../data/' + object;
-//
-//     mod_fs.readFile(filepath, function (err, data) {
-//         t.ifError(err, filepath + ' read without problems');
-//         s3.createBucket({ Bucket: bucket}, function(err) {
-//             t.ifError(err, 'No error when creating [' + bucket + '] bucket');
-//
-//             var params = {
-//                 Bucket: bucket,
-//                 Key: object,
-//                 Body: data
-//             };
-//
-//             s3.putObject(params, function(err, data) {
-//                 if (err) {
-//                     t.fail(err.message);
-//                 }
-//                 t.end();
-//             });
-//         });
-//     });
-// });
+test('can add an object', function(t) {
+    var bucket = 'predictable-bucket-name';
+    var object = 'sample.txt';
+    var filepath = '../data/' + object;
+
+    mod_fs.readFile(filepath, function (err, data) {
+        t.ifError(err, filepath + ' read without problems');
+        s3.createBucket({ Bucket: bucket}, function(err) {
+            t.ifError(err, 'No error when creating [' + bucket + '] bucket');
+
+            var params = {
+                Bucket: bucket,
+                Key: object,
+                Body: data
+            };
+
+            s3.putObject(params, function(err, data) {
+                if (err) {
+                    t.fail(err.message);
+                }
+                t.end();
+            });
+        });
+    });
+});
 
 test('can get an object', function(t) {
     var bucket = 'predictable-bucket-name';
@@ -73,21 +74,29 @@ test('can get an object', function(t) {
     var mantaPath = mantaDir + '/' + object;
 
     var fileStream = mod_fs.createReadStream(filepath);
+    var contents = mod_fs.readFileSync(filepath, "utf8");
 
     manta.mkdirp(mantaDir, function(err) {
-        t.ifError(err, 'added ' + mantaDir + ' without problems');
+        t.ifError(err, 'Created ' + mantaDir + ' without problems');
 
         manta.put(mantaPath, fileStream, function (err) {
-            t.ifError(err, 'added ' + mantaPath + ' without problems');
+            t.ifError(err, 'Added ' + mantaPath + ' without problems');
 
             var params = {
                 Bucket: bucket,
                 Key: object
             };
 
-            var s3obj = s3.getObject(params);
+            s3.getObject(params, function(err, data) {
+                t.ifError(err, 'Got object ' + mantaPath + ' via the S3 API with errors');
+
+                t.ok(data, 'S3 response present');
+                var actualContents = data.Body.toString();
+                t.equal(actualContents, contents, 'File contents are as expected');
+            });
         });
 
         fileStream.close();
+        t.end();
     });
 });

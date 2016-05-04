@@ -4,5 +4,9 @@
   "bucketPath": "~~/stor/s3_buckets",
   "baseSubdomain": "s3",
   "maxRequestBodySize": 1073741824,
-  "s3Version": "2006-03-01"
+  "s3Version": "2006-03-01",
+  "accessKey": "FAKEACCESSKEYANYSTR1",
+  "secretKey": "anystringasasecretkeyshouldworkintheory1",
+  "maxAllowedSkewMilliseconds": "900000"
 }
+

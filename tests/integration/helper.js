@@ -8,7 +8,7 @@ var config = require('../../etc/config.json');
 /** @type {MantaClient} */
 var manta = require('../../lib/manta_client').client();
 /** @type {AWS.S3} */
-var s3 = require('./s3_client').client();
+var s3 = require('./s3_client')(config).client();
 
 function createLogger(name, stream) {
     var log = bunyan.createLogger({

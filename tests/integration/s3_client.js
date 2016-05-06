@@ -5,6 +5,8 @@ var AWS = require('aws-sdk');
 var proxy = require('proxy-agent');
 var bunyan = require('bunyan');
 
+var config;
+
 var log = bunyan.createLogger({
     level: (process.env.LOG_LEVEL || 'debug'),
     name: 's3-client',
@@ -22,17 +24,25 @@ function client() {
         httpOptions.agent = proxy(process.env.https_proxy);
     }
 
-    AWS.config.update({
+    var client = new AWS.S3({
+        apiVersion: '2006-03-01',
+        params: {},
         httpOptions: httpOptions,
+        endpoint: 'http://localhost:8080',
         sslEnabled: false,
-        credentials: new AWS.Credentials('', '', null)
+        logger: process.stderr,
+        signatureVersion: 'v2',
+        credentials: new AWS.Credentials(config.accessKey, config.secretKey)
     });
 
-    var client = new AWS.S3({ apiVersion: '2006-03-01' });
     assert.ok(client);
     return client;
 }
 
-module.exports = {
-    client: client
+module.exports = function (_config) {
+    config = _config;
+    
+    return {
+        client: client
+    };
 };

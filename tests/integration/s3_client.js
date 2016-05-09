@@ -31,7 +31,7 @@ function client() {
         endpoint: 'http://localhost:8080',
         sslEnabled: false,
         logger: process.stderr,
-        signatureVersion: 'v2',
+        signatureVersion: 'v4',
         credentials: new AWS.Credentials(config.accessKey, config.secretKey)
     });
 
@@ -41,7 +41,7 @@ function client() {
 
 module.exports = function (_config) {
     config = _config;
-    
+
     return {
         client: client
     };

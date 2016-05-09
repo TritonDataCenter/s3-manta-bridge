@@ -48,7 +48,12 @@ var test = require('wrapping-tape')({
 });
 
 tape.onFinish(function cleanup() {
-    manta.close();
+    console.log("# onFinish");
+
+    if (manta) {
+        console.log("Closing Manta client");
+        manta.close();
+    }
 });
 
 module.exports = {

@@ -25,6 +25,7 @@ test('server is alive', function (t) {
     var res = mod_request('HEAD', host);
 
     t.equal(res.statusCode, 405, "Expecting server to be reachable at " + host);
+    t.end();
 });
 
 test('test bucket subdomain is active', function(t) {

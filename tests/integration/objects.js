@@ -101,3 +101,36 @@ test('can get an object', function(t) {
         t.end();
     });
 });
+
+// test('can delete a single object', function(t) {
+//     var bucket = 'predictable-bucket-name';
+//     var object = 'sample.txt';
+//     var filepath = '../data/' + object;
+//     var mantaDir = helper.config.bucketPath + '/' + bucket;
+//     var mantaPath = mantaDir + '/' + object;
+//
+//     var fileStream = mod_fs.createReadStream(filepath);
+//
+//     manta.mkdirp(mantaDir, function(err) {
+//         t.ifError(err, 'Created ' + mantaDir + ' without problems');
+//
+//         manta.put(mantaPath, fileStream, function (err) {
+//             t.ifError(err, 'Added ' + mantaPath + ' without problems');
+//
+//             var params = {
+//                 Bucket: bucket,
+//                 Key: object
+//             };
+//
+//             // fileStream.close();
+//
+//             s3.deleteObject(params, function (err, data) {
+//                 t.ifError(err, 'Deleted object ' + mantaPath + ' via the S3 API without errors');
+//
+//                 t.ok(data, 'S3 response present');
+//                 console.log(data);
+//                 t.end();
+//             });
+//         });
+//     });
+// });

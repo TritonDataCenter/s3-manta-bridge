@@ -74,63 +74,55 @@ test('can get an object', function(t) {
     var mantaDir = helper.config.bucketPath + '/' + bucket;
     var mantaPath = mantaDir + '/' + object;
 
-    var fileStream = mod_fs.createReadStream(filepath);
+    var fileStream = mod_fs.createReadStream(filepath, { autoClose: true });
     var contents = mod_fs.readFileSync(filepath, "utf8");
 
-    manta.mkdirp(mantaDir, function(err) {
-        t.ifError(err, 'Created ' + mantaDir + ' without problems');
+    t.plan(4);
 
-        manta.put(mantaPath, fileStream, function (err) {
-            t.ifError(err, 'Added ' + mantaPath + ' without problems');
+    manta.put(mantaPath, fileStream, { mkdirs: true }, function putTestObj(err) {
+        t.ifError(err, 'Added ' + mantaPath + ' without problems');
 
-            var params = {
-                Bucket: bucket,
-                Key: object
-            };
+        var params = {
+            Bucket: bucket,
+            Key: object
+        };
 
-            s3.getObject(params, function(err, data) {
-                t.ifError(err, 'Got object ' + mantaPath + ' via the S3 API with errors');
+        s3.getObject(params, function getObj(err, data) {
+            t.ifError(err, 'Got object ' + mantaPath + ' via the S3 API with errors');
 
-                t.ok(data, 'S3 response present');
-                var actualContents = data.Body.toString();
-                t.equal(actualContents, contents, 'File contents are as expected');
-            });
+            t.ok(data, 'S3 response present');
+            var actualContents = data.Body.toString();
+            t.equal(actualContents, contents, 'File contents are as expected');
+
+            t.end();
         });
-
-        fileStream.close();
-        t.end();
     });
 });
 
-// test('can delete a single object', function(t) {
-//     var bucket = 'predictable-bucket-name';
-//     var object = 'sample.txt';
-//     var filepath = '../data/' + object;
-//     var mantaDir = helper.config.bucketPath + '/' + bucket;
-//     var mantaPath = mantaDir + '/' + object;
-//
-//     var fileStream = mod_fs.createReadStream(filepath);
-//
-//     manta.mkdirp(mantaDir, function(err) {
-//         t.ifError(err, 'Created ' + mantaDir + ' without problems');
-//
-//         manta.put(mantaPath, fileStream, function (err) {
-//             t.ifError(err, 'Added ' + mantaPath + ' without problems');
-//
-//             var params = {
-//                 Bucket: bucket,
-//                 Key: object
-//             };
-//
-//             // fileStream.close();
-//
-//             s3.deleteObject(params, function (err, data) {
-//                 t.ifError(err, 'Deleted object ' + mantaPath + ' via the S3 API without errors');
-//
-//                 t.ok(data, 'S3 response present');
-//                 console.log(data);
-//                 t.end();
-//             });
-//         });
-//     });
-// });
+test('can delete a single object', function(t) {
+    var bucket = 'predictable-bucket-name';
+    var object = 'sample.txt';
+    var filepath = '../data/' + object;
+    var mantaDir = helper.config.bucketPath + '/' + bucket;
+    var mantaPath = mantaDir + '/' + object;
+
+    var fileStream = mod_fs.createReadStream(filepath, { autoClose: true });
+
+    t.plan(3);
+
+    manta.put(mantaPath, fileStream, { mkdirs: true }, function (err) {
+        t.ifError(err, 'Added ' + mantaPath + ' without problems');
+
+        var params = {
+            Bucket: bucket,
+            Key: object
+        };
+
+        s3.deleteObject(params, function (err, data) {
+            t.ifError(err, 'Deleted object ' + mantaPath + ' via the S3 API without errors');
+
+            t.ok(data, 'S3 response present');
+            t.end();
+        });
+    });
+});

@@ -172,6 +172,10 @@ test('can add and get an object with reduced redundancy', function(t) {
     });
 });
 
+test('cannot get a directory as an object', function(t) {
+    t.skip();
+});
+
 test('can delete a single object', function(t) {
     var bucket = 'predictable-bucket-name';
     var object = 'sample.txt';
@@ -198,4 +202,12 @@ test('can delete a single object', function(t) {
             t.end();
         });
     });
+});
+
+test('can list a bucket for objects', function(t) {
+    t.skip();
+});
+
+test('can list a bucket for objects and filter by a prefix', function(t) {
+    t.skip();
 });

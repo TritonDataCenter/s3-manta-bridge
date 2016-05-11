@@ -28,6 +28,7 @@
     "json": "^9.0.3",
     "node-uuid": "^1.4.7",
     "proxy-agent": "^2.0.0",
+    "qs": "^6.2.0",
     "sync-request": "^3.0.0",
     "tape": "^4.5.1",
     "wrapping-tape": "0.0.3"

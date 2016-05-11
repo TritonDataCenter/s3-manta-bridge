@@ -31,6 +31,62 @@ test('canBuildCanonicalRequestV4', function (t) {
     t.end();
 });
 
+test('canBuildCanonicalRequestWithQueryV4', function (t) {
+    var expected = 'GET\n' +
+        '/foo/\n' +
+        'delimiter=%2F\n' +
+        'host:localhost:8080\n' +
+        'x-amz-content-sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\n' +
+        'x-amz-date:20160510T234533Z\n\n' +
+        'host;x-amz-content-sha256;x-amz-date\n' +
+        'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
+
+    var canonicalHeaders = 'host:localhost:8080\n' +
+        'x-amz-content-sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\n' +
+        'x-amz-date:20160510T234533Z\n';
+
+    var actual = signer4.buildCanonicalRequest(
+        'GET',
+        '/foo/',
+        'delimiter=/',
+        canonicalHeaders,
+        [ 'host', 'x-amz-content-sha256', 'x-amz-date' ],
+        'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+    );
+
+    t.equal(actual, expected, 'Canonical request build as expected');
+
+    t.end();
+});
+
+test('canBuildCanonicalRequestWithUnicodeQueryV4', function (t) {
+    var expected = 'GET\n' +
+        '/foo/\n' +
+        'delimiter=%2F&prefix=%E3%81%93%E3%82%8C\n' +
+        'host:localhost:8080\n' +
+        'x-amz-content-sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\n' +
+        'x-amz-date:20160511T002340Z\n\n' +
+        'host;x-amz-content-sha256;x-amz-date\n' +
+        'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
+
+    var canonicalHeaders = 'host:localhost:8080\n' +
+        'x-amz-content-sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\n' +
+        'x-amz-date:20160511T002340Z\n';
+
+    var actual = signer4.buildCanonicalRequest(
+        'GET',
+        '/foo/',
+        'delimiter=/&prefix=これ',
+        canonicalHeaders,
+        [ 'host', 'x-amz-content-sha256', 'x-amz-date' ],
+        'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+    );
+
+    t.equal(actual, expected, 'Canonical request build as expected');
+
+    t.end();
+});
+
 test('canHashCanonicalRequestV4', function(t) {
     var canonicalRequest = 'GET\n' +
         '/\n' +

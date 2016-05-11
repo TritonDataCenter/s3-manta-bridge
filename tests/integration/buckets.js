@@ -21,7 +21,7 @@ test('server is alive', function (t) {
     var host = 'http://localhost:' + port;
     var res = mod_request('HEAD', host);
 
-    t.equal(res.statusCode, 200, "Expecting server to be reachable at " + host);
+    t.equal(res.statusCode, 405, "Expecting server to be reachable at " + host);
     t.end();
 });
 

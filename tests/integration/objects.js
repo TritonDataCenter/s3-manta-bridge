@@ -4,8 +4,6 @@ var mod_fs = require('fs');
 var mod_lo = require('lodash/util');
 var mod_assert = require('assert-plus');
 var mod_request = require('sync-request');
-var mod_vasync = require('vasync');
-var mod_uuid = require('node-uuid');
 var mod_util = require('util');
 
 ///--- Globals

@@ -7,6 +7,17 @@
   "s3Version": "2006-03-01",
   "accessKey": "FAKEACCESSKEYANYSTR1",
   "secretKey": "anystringasasecretkeyshouldworkintheory1",
-  "maxAllowedSkewMilliseconds": "900000"
+  "maxAllowedSkewMilliseconds": "900000",
+  "defaultDurability": 2,
+  "storageClassMappingToDurability": {
+    "STANDARD": 2,
+    "STANDARD_IA": 2,
+    "REDUCED_REDUNDANCY": 1,
+    "GLACIER": 1
+  },
+  "durabilityMappingToStorageClass": {
+    "2": "STANDARD",
+    "1": "REDUCED_REDUNDANCY"
+  }
 }
 

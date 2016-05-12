@@ -173,7 +173,23 @@ test('can add and get an object with reduced redundancy', function(t) {
 });
 
 test('cannot get a directory as an object', function(t) {
-    t.skip();
+    var bucket = 'predictable-bucket-name';
+    var object = 'test-directory';
+    var mantaPath = helper.config.bucketPath + '/' + bucket + '/' + object;
+
+    manta.mkdirp(mantaPath, function(err) {
+        t.ifError(err, mantaPath + ' directory created without a problem');
+
+        var params = {
+            Bucket: bucket,
+            Key: object
+        };
+
+        s3.getObject(params, function getObj(err) {
+            t.equal(err.code, 404, 'Expecting 404 from server for directory requested as object');
+            t.end();
+        });
+    });
 });
 
 test('can delete a single object', function(t) {

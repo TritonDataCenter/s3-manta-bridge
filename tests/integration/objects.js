@@ -1,10 +1,12 @@
 "use strict";
 
 var mod_fs = require('fs');
-var mod_lo = require('lodash/util');
+var mod_lo = require('lodash');
 var mod_assert = require('assert-plus');
 var mod_request = require('sync-request');
 var mod_util = require('util');
+var mod_vasync = require('vasync');
+var mod_stream = require('stream');
 
 ///--- Globals
 var helper = require('./helper');
@@ -220,10 +222,82 @@ test('can delete a single object', function(t) {
     });
 });
 
+function noOfKeys(array, keyName, key) {
+    var totalKeys = 0;
+
+    for (var i = 0; i < array.length; i++) {
+        if (array[i][keyName] && array[i][keyName] === key) {
+            totalKeys++;
+        }
+    }
+
+    return totalKeys;
+}
+
 test('can list a bucket for objects', function(t) {
-    t.skip();
+    var bucket = 'predictable-bucket-name';
+    var testData = 'Hello Manta!';
+
+    var testContents = [
+        mod_util.format("%s/%s/dir1", helper.config.bucketPath, bucket),
+        mod_util.format("%s/%s/file1", helper.config.bucketPath, bucket),
+        mod_util.format("%s/%s/dir1/file2", helper.config.bucketPath, bucket),
+        mod_util.format("%s/%s/dir2", helper.config.bucketPath, bucket),
+        mod_util.format("%s/%s/dir3", helper.config.bucketPath, bucket),
+        mod_util.format("%s/%s/dir3/file3", helper.config.bucketPath, bucket),
+        mod_util.format("%s/%s/dir3/file4", helper.config.bucketPath, bucket),
+        mod_util.format("%s/%s/dir3/dir4/file5", helper.config.bucketPath, bucket),
+        mod_util.format("%s/%s/file6", helper.config.bucketPath, bucket)
+    ];
+
+    var addTestData = function addTestData(path, cb) {
+        if (path.match(/^.*dir[0-9]+[/]*$/)) {
+            manta.mkdirp(path, cb);
+        } else {
+            var buff = new mod_stream.Readable();
+            buff.push(testData);
+            buff.push(null);
+
+            manta.put(path, buff, { mkdirs: true }, cb);
+        }
+    };
+
+    mod_vasync.forEachParallel({
+        func: addTestData,
+        inputs: testContents
+    }, function(err, result) {
+        t.ifError(err, 'All files added as expected');
+        t.equal(result.ndone, 9, 'There should be nine paths created');
+
+        var params = {
+            Bucket: bucket
+        };
+
+        s3.listObjects(params, function(err, data) {
+            t.ifError(err, 'No errors listing objects in bucket');
+
+            t.equal(data.Delimiter, '/', 'Assume forward slash for delimiter because none specified');
+            t.equal(data.Prefix, '', 'Assume empty prefix because none specified');
+            t.equal(data.Marker, '', 'Assume empty marker because none specified');
+            t.equal(data.MaxKeys, 1000, 'Assume 1000 keys by default');
+
+            var files = data.Contents;
+            var dirs = data.CommonPrefixes;
+
+            t.equals(files.length, 2, 'there should be only two files displayed');
+            t.equals(noOfKeys(files, 'Key', 'file1'), 1, 'there is only 1 file1');
+            t.equals(noOfKeys(files, 'Key', 'file6'), 1, 'there is only 1 file6');
+
+            t.equals(dirs.length, 3, 'there should be only three directories displayed');
+            t.equals(noOfKeys(dirs, 'Prefix', 'dir1/'), 1, 'there is only 1 dir1');
+            t.equals(noOfKeys(dirs, 'Prefix', 'dir2/'), 1, 'there is only 1 dir2');
+            t.equals(noOfKeys(dirs, 'Prefix', 'dir3/'), 1, 'there is only 1 dir3');
+
+            t.end();
+        });
+    });
 });
 
-test('can list a bucket for objects and filter by a prefix', function(t) {
-    t.skip();
-});
+// test('can list a bucket for objects and filter by a prefix', function(t) {
+//     t.skip();
+// });

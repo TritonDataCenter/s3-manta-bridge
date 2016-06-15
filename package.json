@@ -11,6 +11,7 @@
   "dependencies": {
     "assert-plus": "^1.0.0",
     "bunyan": "^1.8.0",
+    "clone": "^1.0.2",
     "global-tunnel": "^1.2.0",
     "lodash": "^4.6.1",
     "manta": "^2.0.5",

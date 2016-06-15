@@ -15,6 +15,7 @@
     "global-tunnel": "^1.2.0",
     "lodash": "^4.6.1",
     "manta": "^2.0.5",
+    "resolve-env": "^1.0.0",
     "restify": "^4.0.4",
     "restify-errors": "^4.2.1",
     "util": "^0.10.3",

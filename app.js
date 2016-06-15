@@ -4,6 +4,7 @@ var mod_assert = require('assert-plus');
 var mod_bunyan = require('bunyan');
 var mod_clone = require('clone');
 var mod_gtunnel = require('global-tunnel');
+var mod_resolve_env = require('resolve-env');
 
 ///--- Globals
 
@@ -35,7 +36,7 @@ function run(options) {
     opts.name = NAME;
 
     var server = app.createServer(opts);
-    server.listen(options.serverPort, function () {
+    server.listen(mod_resolve_env(options.serverPort.toString()), function () {
         opts.log.info('%s listening at %s', server.name, server.url);
     });
 

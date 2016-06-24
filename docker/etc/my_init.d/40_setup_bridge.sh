@@ -20,13 +20,13 @@ if [ -z "${MANTA_USER}" ]; then
   exit 1
 fi
 
-if [ -z "${S3_ACCESS_KEY}" ]; then
-  >&2 echo "S3_ACCESS_KEY must be set"
+if [ -z "${AWS_ACCESS_KEY_ID}" ]; then
+  >&2 echo "AWS_ACCESS_KEY_ID must be set"
   exit 1
 fi
 
-if [ -z "${S3_SECRET_KEY}" ]; then
-  >&2 echo "S3_SECRET_KEY must be set"
+if [ -z "${AWS_SECRET_ACCESS_KEY}" ]; then
+  >&2 echo "AWS_SECRET_ACCESS_KEY must be set"
   exit 1
 fi
 

@@ -73,7 +73,7 @@ function run(options) {
     // We interpolate each configuration value with user-specified env vars
     mod_lo.forOwn(config, function interpolateEnv(v, k) {
         if (mod_lo.isString(v)) {
-            config[k] = mod_resolve_env(v);
+            config[k] = mod_lo.trim(mod_resolve_env(v));
         }
     });
 

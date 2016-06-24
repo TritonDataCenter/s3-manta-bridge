@@ -38,15 +38,15 @@ RUN chown -R app:app /home/app
 USER app
 
 RUN cd /home/app && \
-    npm install
+    npm install --production
 
 USER root
 
 # Clean up apt and remove unneeded packages
-RUN apt-get purge -qq -y python python3 python3.4 passenger-dev passenger-doc git \
+RUN apt-get purge -qq -y python passenger-dev passenger-doc git \
                          gcc-4.8 g++-4.8 cpp-4.8 libc6-dev \
-                         libstdc++-4.8-dev libpython3.4-stdlib geoip-database linux-libc-dev \
-                         python2.7-minimal libpython3.4-minimal build-essential && \
+                         libstdc++-4.8-dev geoip-database linux-libc-dev \
+                         python2.7-minimal build-essential && \
     apt-get autoremove -qq -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

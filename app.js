@@ -4,6 +4,7 @@ var mod_assert = require('assert-plus');
 var mod_bunyan = require('bunyan');
 var mod_clone = require('clone');
 var mod_gtunnel = require('global-tunnel');
+var mod_lo = require('lodash');
 var mod_resolve_env = require('resolve-env');
 
 ///--- Globals
@@ -36,7 +37,7 @@ function run(options) {
     opts.name = NAME;
 
     var server = app.createServer(opts);
-    server.listen(mod_resolve_env(options.serverPort.toString()), function () {
+    server.listen(options.serverPort.toString(), function () {
         opts.log.info('%s listening at %s', server.name, server.url);
     });
 
@@ -68,6 +69,13 @@ function run(options) {
 
 (function main() {
     var config = require(DEFAULTS.file);
+
+    // We interpolate each configuration value with user-specified env vars
+    mod_lo.forOwn(config, function interpolateEnv(v, k) {
+        if (mod_lo.isString(v)) {
+            config[k] = mod_resolve_env(v);
+        }
+    });
 
     LOG.debug({
         config: config

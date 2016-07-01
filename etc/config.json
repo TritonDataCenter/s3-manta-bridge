@@ -1,12 +1,14 @@
 {
+  "authEnabled": true,
+  "baseHostname": "$S3_BRIDGE_HOST",
   "serverPort": 8080,
   "prettyPrint": true,
   "bucketPath": "~~/stor/s3_buckets",
   "baseSubdomain": "s3",
   "maxRequestBodySize": 1073741824,
   "s3Version": "2006-03-01",
-  "accessKey": "FAKEACCESSKEYANYSTR1",
-  "secretKey": "anystringasasecretkeyshouldworkintheory1",
+  "accessKey": "$AWS_ACCESS_KEY_ID",
+  "secretKey": "$AWS_SECRET_ACCESS_KEY",
   "maxAllowedSkewMilliseconds": "900000",
   "defaultDurability": 2,
   "storageClassMappingToDurability": {

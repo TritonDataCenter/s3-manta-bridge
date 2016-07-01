@@ -63,6 +63,7 @@ docker run \
     -e TLS_CERT_KEY="$(cat wildcard.my_domain.key)" \
     -e TLS_CERT="$(cat wildcard.my_domain.crt wildcard.my_domain_chain.crt)" \ 
     --name s3-manta-bridge \
+    -m 256m \
     --rm dekobon/s3-manta-bridge:latest
 ```
 
@@ -80,8 +81,8 @@ you would run by doing something like:
 MANTA_KEY_CONTENT="$(cat ~/.ssh/id_rsa)" \
 AWS_ACCESS_KEY_ID="FAKEACCESSKEYANYSTR11" \
 AWS_SECRET_ACCESS_KEY="anystringasasecretkeyshouldworkintheory11" \
-TLS_CERT_KEY="$(cat wildcard.triton.ws.key)" \
-TLS_CERT="$(cat wildcard.triton.ws.crt wildcard.triton.ws_chain.crt)" \
+TLS_CERT_KEY="$(cat wildcard.my_domain.key)" \
+TLS_CERT="$(cat wildcard.my_domain.crt wildcard.my_domain_chain.crt)" \
 docker-compose -p s3manta up -d
 ```
 
@@ -92,8 +93,8 @@ Triton because it allows you to scale with a single command:
 MANTA_KEY_CONTENT="$(cat ~/.ssh/id_rsa)" \
 AWS_ACCESS_KEY_ID="FAKEACCESSKEYANYSTR11" \
 AWS_SECRET_ACCESS_KEY="anystringasasecretkeyshouldworkintheory11" \
-TLS_CERT_KEY="$(cat wildcard.triton.ws.key)" \
-TLS_CERT="$(cat wildcard.triton.ws.crt wildcard.triton.ws_chain.crt)" \
+TLS_CERT_KEY="$(cat wildcard.my_domain.key)" \
+TLS_CERT="$(cat wildcard.my_domain.crt wildcard.my_domain_chain.crt)" \
 docker-compose -p s3manta scale s3-manta-bridge=2
 ```
 

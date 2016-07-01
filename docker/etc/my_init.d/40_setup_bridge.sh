@@ -61,3 +61,13 @@ fi
 echo "Copying private key to app home"
 mkdir -p /home/app/.ssh
 echo "${MANTA_KEY_CONTENT}" > /home/app/.ssh/id_rsa
+
+echo "Setting process limit variables"
+mkdir -p /etc/service/nginx/env
+PROC_LIMIT="$(/usr/local/bin/proclimit.sh)"
+echo ${PROC_LIMIT} > /etc/service/nginx/env/PROC_LIMIT
+
+# Explicitly setting worker processes
+sed -i "s/worker_processes [[:digit:]]\+;/worker_processes $PROC_LIMIT;/" /etc/nginx/nginx.conf
+sed -i "s/passenger_max_pool_size [[:digit:]]\+;/passenger_max_pool_size $PROC_LIMIT;/" /etc/nginx/nginx.conf
+sed -i "s/passenger_max_instances_per_app [[:digit:]]\+;/passenger_max_instances_per_app $PROC_LIMIT;/" /etc/nginx/nginx.conf

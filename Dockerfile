@@ -9,7 +9,7 @@ RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selectio
 # Upgrade and add packages
 RUN apt-get update -qq && \
     apt-get purge -qq -y openssh-server openssh-client openssh-sftp-server && \
-    apt-get install -qq -y python && \
+    apt-get install -qq -y python htop && \
     apt-get autoremove -qq -y && \
     apt-get upgrade -qq -y -o Dpkg::Options::="--force-confold"
 
@@ -28,12 +28,16 @@ COPY etc/ /home/app/etc
 COPY app.js /home/app/
 COPY package.json /home/app/
 COPY docker/etc /etc
+COPY docker/usr/local/bin/proclimit.sh /usr/local/bin/proclimit.sh
 
 # Enable s3 Manta bridge configuration
 RUN ln -v -s /etc/nginx/sites-available/s3-manta-bridge.conf /etc/nginx/sites-enabled/s3-manta-bridge.conf
 
 # Make sure the app user owns the application home directory
 RUN chown -R app:app /home/app
+
+# Set executible bits needed for supplemental utilities
+RUN chmod +x /usr/local/bin/proclimit.sh
 
 USER app
 

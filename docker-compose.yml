@@ -1,0 +1,18 @@
+s3-manta-bridge:
+  image: dekobon/s3-manta-bridge:latest
+  labels:
+    - triton.cns.services=s3mantabridge
+  restart: always
+  mem_limit: 256m
+  ports:
+    - 80
+    - 443
+  environment:
+    - MANTA_KEY_CONTENT
+    - MANTA_KEY_ID
+    - MANTA_URL
+    - MANTA_USER
+    - AWS_ACCESS_KEY_ID
+    - AWS_SECRET_ACCESS_KEY
+    - TLS_CERT_KEY
+    - TLS_CERT

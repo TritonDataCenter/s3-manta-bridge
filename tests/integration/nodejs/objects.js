@@ -44,7 +44,7 @@ test('test bucket subdomain is active', function(t) {
 test('can add an object', function(t) {
     var bucket = 'predictable-bucket-name';
     var object = 'sample.txt';
-    var filepath = '../data/' + object;
+    var filepath = '../../data/' + object;
 
     mod_fs.readFile(filepath, function (err, data) {
         t.ifError(err, filepath + ' read without problems');
@@ -70,7 +70,7 @@ test('can add an object', function(t) {
 test('can get an object', function(t) {
     var bucket = 'predictable-bucket-name';
     var object = 'sample.txt';
-    var filepath = '../data/' + object;
+    var filepath = '../../data/' + object;
     var mantaDir = helper.config.bucketPath + '/' + bucket;
     var mantaPath = mantaDir + '/' + object;
 
@@ -102,7 +102,7 @@ test('can get an object', function(t) {
 test('can add and get an object with metadata', function(t) {
     var bucket = 'predictable-bucket-name';
     var object = 'sample.txt';
-    var filepath = '../data/' + object;
+    var filepath = '../../data/' + object;
 
     mod_fs.readFile(filepath, function (err, data) {
         t.ifError(err, filepath + ' read without problems');
@@ -141,7 +141,7 @@ test('can add and get an object with metadata', function(t) {
 test('can add and get an object with reduced redundancy', function(t) {
     var bucket = 'predictable-bucket-name';
     var object = 'sample.txt';
-    var filepath = '../data/' + object;
+    var filepath = '../../data/' + object;
 
     mod_fs.readFile(filepath, function (err, data) {
         t.ifError(err, filepath + ' read without problems');
@@ -197,7 +197,7 @@ test('cannot get a directory as an object', function(t) {
 test('can delete a single object', function(t) {
     var bucket = 'predictable-bucket-name';
     var object = 'sample.txt';
-    var filepath = '../data/' + object;
+    var filepath = '../../data/' + object;
     var mantaDir = helper.config.bucketPath + '/' + bucket;
     var mantaPath = mantaDir + '/' + object;
 

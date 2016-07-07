@@ -5,7 +5,7 @@ var bunyan = require('bunyan');
 var uuid = require('node-uuid');
 var mod_lo = require('lodash');
 var mod_resolve_env = require('resolve-env');
-var config = require('../../etc/config.json');
+var config = require('../../../etc/config.json');
 
 // We interpolate each configuration value with user-specified env vars
 mod_lo.forOwn(config, function interpolateEnv(v, k) {
@@ -15,7 +15,7 @@ mod_lo.forOwn(config, function interpolateEnv(v, k) {
 });
 
 /** @type {MantaClient} */
-var manta = require('../../lib/manta_client').client();
+var manta = require('../../../lib/manta_client').client();
 /** @type {AWS.S3} */
 var s3 = require('./s3_client')(config).client();
 

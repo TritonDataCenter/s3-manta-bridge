@@ -1,17 +1,75 @@
 #!/usr/bin/env bats
 
-SCRIPT_DIR="$BATS_CWD/tests/integration/s3cmd"
-PARAMS="-c $SCRIPT_DIR/.s3cfg --access_key=$AWS_ACCESS_KEY_ID --secret_key=$AWS_SECRET_ACCESS_KEY"
-TEST_BUCKET="test-$(${BATS_CWD}/node_modules/.bin/uuid)"
+# Sanity checks to make sure the required env vars are set and dependent
+# utilities are present
 
-@test "s3cmd is installed on path" {
-    run which s3cmd
-        [ "$status" -eq 0 ]
+if [ -z "$S3_BRIDGE_HOST" ]; then
+    >&2 echo "S3_BRIDGE_HOST not set - exiting"
+    exit 1
+fi
+
+
+if [ -z "$AWS_ACCESS_KEY_ID" ]; then
+    >&2 echo "AWS_ACCESS_KEY_ID not set - exiting"
+    exit 1
+fi
+
+if [ -z "$AWS_SECRET_ACCESS_KEY is set" ]; then
+    >&2 echo "AWS_SECRET_ACCESS_KEY not set - exiting"
+    exit 1
+fi
+
+if [ ! -f "${BATS_CWD}/node_modules/.bin/uuid" ]; then
+    >&2 echo "Node.js uuid utility isn't install in modules directory - exiting"
+    exit 1
+fi
+
+if [ ! -x "$(which s3cmd)" ]; then
+    >&2 echo "s3cmd is not installed in path - exiting"
+    exit 1
+fi
+
+if [ "$(s3cmd --version | cut -d' ' -f3 | cut -d'.' -f1,2)" != '1.6' ]; then
+    >&2 echo "s3cmd is not version 1.6"
+    exit 1
+fi
+
+TEST_BUCKET="test-$(${BATS_CWD}/node_modules/.bin/uuid)"
+SCRIPT_DIR="$BATS_CWD/tests/integration/s3cmd"
+S3_CFG="$(mktemp -t s3cmd-cfg-${S3_BRIDGE_HOST}-XXXXXX)"
+PARAMS="-c $S3_CFG --access_key=$AWS_ACCESS_KEY_ID --secret_key=$AWS_SECRET_ACCESS_KEY"
+
+if [ -x "$(which gsed)" ]; then
+    SED_CMD="gsed"
+else
+    SED_CMD="sed"
+fi
+
+# Setup / Teardown
+
+setup() {
+    # Template out s3cmd configuration to use specified host value
+    cat ${SCRIPT_DIR}/.s3cfg | ${SED_CMD} "s/%(s3bridgehost)s/$S3_BRIDGE_HOST/g" > ${S3_CFG}
+
+    if [ ! -f ${S3_CFG} ]; then
+        >&s echo "Generated s3cmd configuration file couldn't be found at: ${S3_CFG}"
+        exit 1
+    fi
+
+    if [ ! -s ${S3_CFG} ]; then
+        >&s echo "Generated s3cmd configuration file is empty"
+        exit 1
+    fi
 }
 
-@test "s3cmd is 1.6.x" {
-    result="$(s3cmd --version | cut -d' ' -f3 | cut -d'.' -f1 -f2)"
-        [ "$result" = '1.6' ]
+teardown() {
+    rm -f ${S3_CFG}
+}
+
+# Start Tests
+
+@test "Test bucket is using random UUID suffix" {
+    [ "$TEST_BUCKET" != "test-" ]
 }
 
 @test "s3cmd can list buckets" {
@@ -25,12 +83,13 @@ TEST_BUCKET="test-$(${BATS_CWD}/node_modules/.bin/uuid)"
 }
 
 @test "s3cmd can upload a file" {
-    tempfile="$(mktemp)"
-    run dd -s if=/dev/urandom of=$tempfile bs=1024 count=1024
+    tempfile="$(mktemp -t s3cmd-upload-XXXXXX.random)"
+    run dd if=/dev/urandom of=$tempfile bs=1024 count=1024
+        [ -f $tempfile ]
+        [ -s $tempfile ]
     run s3cmd $PARAMS mb s3://$TEST_BUCKET && \
         s3cmd $PARAMS put $tempfile s3://$TEST_BUCKET/test/upload.random
-        echo "path: $tempfile"
-#        s3cmd $PARAMS rb s3://$TEST_BUCKET && \
-#        rm $tempfile
+        s3cmd $PARAMS rb s3://$TEST_BUCKET && \
+        rm $tempfile
         [ "$status" -eq 0 ]
 }

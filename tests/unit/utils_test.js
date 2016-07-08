@@ -110,3 +110,82 @@ test('splitFirstDirectory - can with relative paths', function(t) {
     t.equal(result.remaining, 'file.txt', 'expecting relative remaining path to be resolved');
     t.end();
 });
+
+// test('sanitizeS3Filepath - a sane path will not be changed', function(t) {
+//     var path = '/testbucket/test.log';
+//     var result = utils.sanitizeFilepath(path);
+//
+//     t.equal(result, path, 'path should not be altered');
+//     t.end();
+// });
+//
+// test('sanitizeS3Filepath - a sane path with subdir will not be changed', function(t) {
+//     var path = '/testbucket/dir1/test.log';
+//     var result = utils.sanitizeFilepath(path);
+//
+//     t.equal(result, path, 'path should not be altered');
+//     t.end();
+// });
+
+test('sanitizeS3Filepath - double slashes will be collapsed', function(t) {
+    var path = '/testbucket//test.log';
+    var expected = '/testbucket/test.log';
+    var result = utils.sanitizeFilepath(path);
+
+    t.equal(result, expected, 'path should not have double slashes');
+    t.end();
+});
+
+test('sanitizeS3Filepath - path must start with slash', function(t) {
+    var path = 'testbucket/test.log';
+    var expected = '/testbucket/test.log';
+    var result = utils.sanitizeFilepath(path);
+
+    t.equals(result, expected, 'all paths are relative to the root');
+    t.end();
+});
+
+test('sanitizeS3Filepath - relative paths should not exist', function(t) {
+    var path = '../testbucket/test.log';
+    var expected = '/testbucket/test.log';
+    var result = utils.sanitizeFilepath(path);
+
+    t.equals(result, expected, 'relative paths are collapsed');
+    t.end();
+});
+
+test('sanitizeS3Filepath - relative paths should not be in the middle of the path', function(t) {
+    var path = '/testbucket/dir/../test.log';
+    var expected = '/testbucket/test.log';
+    var result = utils.sanitizeFilepath(path);
+
+    t.equals(result, expected, 'relative paths are collapsed');
+    t.end();
+});
+
+test('sanitizeS3Filepath - there should be no leading or training spaces', function(t) {
+    var path = ' /testbucket/test.log ';
+    var expected = '/testbucket/test.log';
+    var result = utils.sanitizeFilepath(path);
+
+    t.equals(result, expected, 'leading and trailing spaces are removed');
+    t.end();
+});
+
+test('sanitizeS3Filepath - there should be no tabs or new lines', function(t) {
+    var path = "/testbucket/\ttest\n\r.log";
+    var expected = '/testbucket/test.log';
+    var result = utils.sanitizeFilepath(path);
+
+    t.equals(result, expected, 'leading and trailing spaces are removed');
+    t.end();
+});
+
+test('sanitizeS3Filepath - there should be no tabs or new lines', function(t) {
+    var path = "/testbucket/\ttest\n\r.log";
+    var expected = '/testbucket/test.log';
+    var result = utils.sanitizeFilepath(path);
+
+    t.equals(result, expected, 'leading and trailing spaces are removed');
+    t.end();
+});

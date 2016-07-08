@@ -298,6 +298,64 @@ test('can list a bucket for objects', function(t) {
     });
 });
 
-// test('can list a bucket for objects and filter by a prefix', function(t) {
-//     t.skip();
-// });
+test('can get the ACL for an object', function(t) {
+    var bucket = 'predictable-bucket-name';
+    var object = 'sample.txt';
+    var filepath = '../../data/' + object;
+    var mantaDir = helper.config.bucketPath + '/' + bucket;
+    var mantaPath = mantaDir + '/' + object;
+
+    var fileStream = mod_fs.createReadStream(filepath, { autoClose: true });
+
+    t.plan(3);
+
+    manta.put(mantaPath, fileStream, { mkdirs: true }, function (err) {
+        t.ifError(err, 'Added ' + mantaPath + ' without problems');
+
+        var params = {
+            Bucket: bucket,
+            Key: object
+        };
+
+        s3.getObjectAcl(params, function (err, data) {
+            t.ifError(err, 'Acl returned for object ' + mantaPath + ' via the S3 API without errors');
+
+            t.ok(data, 'S3 response present');
+            t.end();
+        });
+    });
+});
+
+test('can copy an object between directories', function(t) {
+    var bucket = 'predictable-bucket-name';
+    var source = 'sample.txt';
+    var destination = 'dir1/sample-copy.txt';
+    var filepath = '../../data/' + source;
+    var mantaDir = helper.config.bucketPath + '/' + bucket;
+    var mantaPath = mantaDir + '/' + source;
+
+    var fileStream = mod_fs.createReadStream(filepath, { autoClose: true });
+
+    t.plan(5);
+
+    manta.put(mantaPath, fileStream, { mkdirs: true }, function (err) {
+        t.ifError(err, 'Added ' + mantaPath + ' without problems');
+
+        var params = {
+            Bucket: bucket,
+            CopySource: source,
+            Key: destination
+        };
+
+        s3.copyObject(params, function (err, data) {
+            t.ifError(err, 'Object copied to ' + destination + ' via the S3 API without errors');
+
+            t.ok(data, 'S3 response present');
+
+            manta.info(mantaDir + '/' + destination, function dstCheck(lnErr, info) {
+                t.ifError(lnErr, 'Object arrived as expected in destination');
+                t.end();
+            });
+        });
+    });
+});

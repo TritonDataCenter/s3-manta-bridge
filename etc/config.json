@@ -11,6 +11,7 @@
   "secretKey": "$AWS_SECRET_ACCESS_KEY",
   "maxAllowedSkewMilliseconds": "900000",
   "defaultDurability": 2,
+  "maxFilenameLength": 1024,
   "storageClassMappingToDurability": {
     "STANDARD": 2,
     "STANDARD_IA": 2,

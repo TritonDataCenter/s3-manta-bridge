@@ -78,18 +78,38 @@ teardown() {
 }
 
 @test "s3cmd can add and remove bucket" {
-    run s3cmd $PARAMS mb s3://$TEST_BUCKET && s3cmd $PARAMS rb s3://$TEST_BUCKET
+    run s3cmd $PARAMS mb s3://$TEST_BUCKET
+        [ "$status" -eq 0 ]
+    run s3cmd $PARAMS rb s3://$TEST_BUCKET
         [ "$status" -eq 0 ]
 }
 
-@test "s3cmd can upload a file" {
+@test "s3cmd can upload and download a file" {
     tempfile="$(mktemp -t s3cmd-upload-XXXXXX.random)"
-    run dd if=/dev/urandom of=$tempfile bs=1024 count=1024
-        [ -f $tempfile ]
-        [ -s $tempfile ]
-    run s3cmd $PARAMS mb s3://$TEST_BUCKET && \
-        s3cmd $PARAMS put $tempfile s3://$TEST_BUCKET/test/upload.random
-        s3cmd $PARAMS rb s3://$TEST_BUCKET && \
-        rm $tempfile
+    downloadfile="$(mktemp -t s3cmd-download-XXXXXX.random)"
+
+    # Populate test file with random data
+    run dd if=/dev/urandom of=${tempfile} bs=1024 count=1024
+        [ -f ${tempfile} ]
+        [ -s ${tempfile} ]
+
+    # Create bucket and upload file
+    run s3cmd ${PARAMS} mb s3://${TEST_BUCKET} && \
+        s3cmd ${PARAMS} put ${tempfile} s3://${TEST_BUCKET}/test/upload.random
+        [ "$status" -eq 0 ]
+
+    # Pull down exact same file
+    run s3cmd ${PARAMS} --force get s3://${TEST_BUCKET}/test/upload.random ${downloadfile}
+        [ "$status" -eq 0 ]
+
+    # Verify that file contents are identical
+    run cmp ${tempfile} ${downloadfile}
+        [ "$status" -eq 0 ]
+
+    # Delete object and bucket
+    run s3cmd ${PARAMS} del s3://${TEST_BUCKET}/test/upload.random && \
+        s3cmd ${PARAMS} rb s3://${TEST_BUCKET} && \
+        rm ${tempfile} && \
+        rm ${downloadfile}
         [ "$status" -eq 0 ]
 }

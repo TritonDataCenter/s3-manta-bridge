@@ -18,7 +18,7 @@ var test = helper.test;
 
 test('server is alive', function (t) {
     var port = helper.config.serverPort;
-    var host = 'http://localhost:' + port;
+    var host = 'http://' + helper.config.baseHostname + ':' + port;
     var res = mod_request('HEAD', host);
 
     t.equal(res.statusCode, 405, "Expecting server to be reachable at " + host);

@@ -28,7 +28,7 @@ function client() {
         apiVersion: '2006-03-01',
         params: {},
         httpOptions: httpOptions,
-        endpoint: 'http://localhost:8080',
+        endpoint: 'http://' + config.baseHostname + ':' + config.serverPort,
         sslEnabled: false,
         logger: process.stderr,
         signatureVersion: 'v4',

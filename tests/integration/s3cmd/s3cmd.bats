@@ -114,36 +114,36 @@ teardown() {
         [ "$status" -eq 0 ]
 }
 
-#@test "s3cmd can move an object within a bucket" {
-#    tempfile="$(mktemp -t s3cmd-upload-XXXXXX.random)"
-#    downloadfile="$(mktemp -t s3cmd-download-XXXXXX.random)"
-#
-#    # Populate test file with random data
-#    run dd if=/dev/urandom of=${tempfile} bs=1024 count=1024
-#        [ -f ${tempfile} ]
-#        [ -s ${tempfile} ]
-#
-#    # Create bucket and upload file
-#    run s3cmd ${PARAMS} mb s3://${TEST_BUCKET} && \
-#        s3cmd ${PARAMS} put ${tempfile} s3://${TEST_BUCKET}/test/upload.random
-#        [ "$status" -eq 0 ]
-#
-#    # Move file to another name
-#    run s3cmd ${PARAMS} mv s3://${TEST_BUCKET}/test/upload.random s3://${TEST_BUCKET}/test2/upload-moved.random && \
-#        [ "$status" -eq 0 ]
-#
-#    # Pull down exact same file
-#    run s3cmd ${PARAMS} --force get s3://${TEST_BUCKET}/test2/upload-moved.random ${downloadfile}
-#        [ "$status" -eq 0 ]
-#
-#    # Verify that file contents are identical
-#    run cmp ${tempfile} ${downloadfile}
-#        [ "$status" -eq 0 ]
-#
-#    # Delete object and bucket
-#    run s3cmd ${PARAMS} del s3://${TEST_BUCKET}/test2/upload-moved.random && \
-#        s3cmd ${PARAMS} rb s3://${TEST_BUCKET} && \
-#        rm ${tempfile} && \
-#        rm ${downloadfile}
-#        [ "$status" -eq 0 ]
-#}
+@test "s3cmd can move an object within a bucket" {
+    tempfile="$(mktemp -t s3cmd-upload-XXXXXX.random)"
+    downloadfile="$(mktemp -t s3cmd-download-XXXXXX.random)"
+
+    # Populate test file with random data
+    run dd if=/dev/urandom of=${tempfile} bs=1024 count=1024
+        [ -f ${tempfile} ]
+        [ -s ${tempfile} ]
+
+    # Create bucket and upload file
+    run s3cmd ${PARAMS} mb s3://${TEST_BUCKET} && \
+        s3cmd ${PARAMS} put ${tempfile} s3://${TEST_BUCKET}/test/upload.random
+        [ "$status" -eq 0 ]
+
+    # Move file to another name
+    run s3cmd ${PARAMS} mv s3://${TEST_BUCKET}/test/upload.random s3://${TEST_BUCKET}/test2/upload-moved.random && \
+        [ "$status" -eq 0 ]
+
+    # Pull down exact same file
+    run s3cmd ${PARAMS} --force get s3://${TEST_BUCKET}/test2/upload-moved.random ${downloadfile}
+        [ "$status" -eq 0 ]
+
+    # Verify that file contents are identical
+    run cmp ${tempfile} ${downloadfile}
+        [ "$status" -eq 0 ]
+
+    # Delete object and bucket
+    run s3cmd ${PARAMS} del s3://${TEST_BUCKET}/test2/upload-moved.random && \
+        s3cmd ${PARAMS} rb s3://${TEST_BUCKET} && \
+        rm ${tempfile} && \
+        rm ${downloadfile}
+        [ "$status" -eq 0 ]
+}

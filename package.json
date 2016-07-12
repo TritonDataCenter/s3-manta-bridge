@@ -27,6 +27,8 @@
     "aws-sdk": "^2.2.45",
     "bats": "^0.4.2",
     "faucet": "0.0.1",
+    "ink-docstrap": "^1.2.1",
+    "jsdoc": "^3.4.0",
     "json": "^9.0.3",
     "node-uuid": "^1.4.7",
     "proxy-agent": "^2.0.0",

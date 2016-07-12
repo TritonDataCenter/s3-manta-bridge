@@ -1,3 +1,9 @@
+/**
+ * Central entry point to s3 to Manta bridge API.
+ *
+ * @module app
+ */
+
 "use strict";
 
 var mod_assert = require('assert-plus');

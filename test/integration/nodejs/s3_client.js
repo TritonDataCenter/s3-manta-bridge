@@ -1,20 +1,21 @@
-"use strict";
+'use strict';
 
-var assert = require('assert-plus');
-var AWS = require('aws-sdk');
-var proxy = require('proxy-agent');
-var bunyan = require('bunyan');
+let assert = require('assert-plus');
+let AWS = require('aws-sdk');
+let proxy = require('proxy-agent');
+let bunyan = require('bunyan');
+let mod_lo = require('lodash');
 
-var config;
+let config;
 
-var log = bunyan.createLogger({
+let log = bunyan.createLogger({
     level: (process.env.LOG_LEVEL || 'debug'),
     name: 's3-client',
     stream: process.stdout
 });
 
 function client() {
-    var httpOptions = {};
+    let httpOptions = {};
 
     if (process.env.http_proxy) {
         log.debug('Using proxy with S3 client: %s', process.env.http_proxy);
@@ -24,11 +25,19 @@ function client() {
         httpOptions.agent = proxy(process.env.https_proxy);
     }
 
-    var client = new AWS.S3({
+    if (mod_lo.isEmpty(config.baseHostname)) {
+        throw new Error('Base hostname is not configured. See configuration file.');
+    }
+
+    if (!mod_lo.isNumber(config.serverPort)) {
+        throw new Error('Server port is not configured. See configuration file.');
+    }
+
+    let client = new AWS.S3({
         apiVersion: '2006-03-01',
         params: {},
         httpOptions: httpOptions,
-        endpoint: 'http://' + config.baseHostname + ':' + config.serverPort,
+        endpoint: `http://${config.baseHostname}:${config.serverPort}`,
         sslEnabled: false,
         logger: process.stderr,
         signatureVersion: 'v4',

@@ -58,13 +58,14 @@ docker run \
     -e MANTA_KEY_ID="$MANTA_KEY_ID" \
     -e MANTA_URL="$MANTA_URL" \
     -e MANTA_USER="$MANTA_USER" \
-    -e AWS_ACCESS_KEY_ID=FAKEACCESSKEYANYSTR1 \
-    -e AWS_SECRET_ACCESS_KEY=anystringasasecretkeyshouldworkintheory1 \
+    -e AWS_ACCESS_KEY_ID=FAKEACCESSKEYANYSTR11 \
+    -e AWS_SECRET_ACCESS_KEY=anystringasasecretkeyshouldworkintheory11 \
     -e TLS_CERT_KEY="$(cat wildcard.my_domain.key)" \
-    -e TLS_CERT="$(cat wildcard.my_domain.crt wildcard.my_domain_chain.crt)" \ 
+    -e TLS_CERT="$(cat wildcard.my_domain.crt wildcard.my_domain_chain.crt)" \
+    --label triton.cns.services=s3mantabridge \
     --name s3-manta-bridge \
-    -m 256m \
-    --rm dekobon/s3-manta-bridge:latest
+    -m 512m \
+    dekobon/s3-manta-bridge:latest
 ```
 
 If you are running on Joyent's Triton, adding the label `triton.cns.services=<myname>`

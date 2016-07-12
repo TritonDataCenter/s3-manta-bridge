@@ -1,0 +1,15 @@
+{
+  "extends": "eslint:recommended",
+  "env": {
+    "node": true,
+    "browser": false,
+    "es6": true
+
+  },
+  "prefer-const": "error",
+  "no-mixed-spaces-and-tabs": 2,
+  "no-extend-native": 2,
+  "new-cap": 2,
+  "no-use-before-define": [2, "nofunc"],
+  "semi": [2, "always"]
+}

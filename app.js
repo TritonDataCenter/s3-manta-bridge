@@ -1,44 +1,55 @@
-"use strict";
+/**
+ * @file Central entry point to s3 to Manta bridge API.
+ */
 
-var mod_assert = require('assert-plus');
-var mod_bunyan = require('bunyan');
-var mod_clone = require('clone');
-var mod_gtunnel = require('global-tunnel');
-var mod_lo = require('lodash');
-var mod_resolve_env = require('resolve-env');
+'use strict';
+
+let mod_assert = require('assert-plus');
+let mod_bunyan = require('bunyan');
+let mod_clone = require('clone');
+let mod_gtunnel = require('global-tunnel');
 
 ///--- Globals
 
-var app = require('./lib');
+let Options = require('./lib/options');
+let BridgeServer = require('./lib/bridge_server');
 
-var DEFAULTS = {
-    file: process.cwd() + '/etc/config.json',
-    port: 80
+const DEFAULTS = {
+    file: process.cwd() + '/etc/config.json'
 };
 
-var NAME = 's3-manta-bridge';
+const NAME = 's3-manta-bridge';
 
-var LOG = mod_bunyan.createLogger({
+/**
+ * Bunyan logger.
+ * @external Logger
+ * @see {@link https://github.com/trentm/node-bunyan/blob/master/lib/bunyan.js}
+ */
+const LOG = mod_bunyan.createLogger({
     name: NAME,
     level: (process.env.LOG_LEVEL || 'info'),
     stream: process.stdout
 });
 
 if (process.env.http_proxy || process.env.https_proxy) {
-    LOG.info("Requests to Manta are being sent through a proxy");
+    LOG.info('Requests to Manta are being sent through a proxy');
     mod_gtunnel.initialize();
 }
 
+/**
+ * Starts the server process and catches exit signals. 
+ * 
+ * @param {object} options configuration options loaded when server is started
+ */
 function run(options) {
     mod_assert.object(options);
 
-    var opts = mod_clone(options);
-    opts.log = LOG;
+    let opts = mod_clone(options);
     opts.name = NAME;
 
-    var server = app.createServer(opts);
+    let server = new BridgeServer(opts, LOG);
     server.listen(options.serverPort.toString(), function () {
-        opts.log.info('%s listening at %s', server.name, server.url);
+        LOG.info('%s listening at %s', server.name, server.url);
     });
 
     function shutdown(cb) {
@@ -68,18 +79,12 @@ function run(options) {
 ///--- Mainline
 
 (function main() {
-    var config = require(DEFAULTS.file);
-
-    // We interpolate each configuration value with user-specified env vars
-    mod_lo.forOwn(config, function interpolateEnv(v, k) {
-        if (mod_lo.isString(v)) {
-            config[k] = mod_lo.trim(mod_resolve_env(v));
-        }
-    });
+    let configOptions = require(DEFAULTS.file);
+    let options = new Options(configOptions);
 
     LOG.debug({
-        config: config
+        config: options
     }, 'main: options and config parsed');
 
-    run(config);
+    run(options);
 })();

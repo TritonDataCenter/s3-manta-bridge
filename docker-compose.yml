@@ -3,7 +3,7 @@ s3-manta-bridge:
   labels:
     - triton.cns.services=s3mantabridge
   restart: always
-  mem_limit: 256m
+  mem_limit: 512m
   ports:
     - 80
     - 443

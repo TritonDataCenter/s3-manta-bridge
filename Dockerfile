@@ -1,4 +1,4 @@
-FROM phusion/passenger-nodejs:0.9.18
+FROM phusion/passenger-nodejs:0.9.19
 
 ENV PASSENGER_COMPILE_NATIVE_SUPPORT_BINARY 0
 ENV PASSENGER_DOWNLOAD_NATIVE_SUPPORT_BINARY=0
@@ -6,12 +6,17 @@ ENV PASSENGER_DOWNLOAD_NATIVE_SUPPORT_BINARY=0
 # Setup apt-get so that it doesn't warn about a non-interactive tty
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
 
+# Add NodeSource key and create apt sources list file for the repo
+RUN curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - && \
+    echo 'deb https://deb.nodesource.com/node_4.x xenial main' > /etc/apt/sources.list.d/nodesource.list
+
 # Upgrade and add packages
 RUN apt-get update -qq && \
     apt-get purge -qq -y openssh-server openssh-client openssh-sftp-server && \
-    apt-get install -qq -y python htop && \
-    apt-get autoremove -qq -y && \
-    apt-get upgrade -qq -y -o Dpkg::Options::="--force-confold"
+    apt-get install -qq -y python htop dc && \
+    apt-get upgrade -qq -y nodejs  && \
+    apt-get upgrade -qq -y -o Dpkg::Options::="--force-confold"  && \
+    apt-get autoremove -qq -y
 
 # Totally remove ssh, enable nginx, disable default nginx
 RUN rm -rf /etc/service/sshd /etc/my_init.d/00_regen_ssh_host_keys.sh \

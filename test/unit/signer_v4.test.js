@@ -1,5 +1,6 @@
-"use strict";
+'use strict';
 
+var mod_qs = require('qs');
 var signer4 = require('../../lib/signer_v4')({});
 var test = require('tape');
 
@@ -20,7 +21,7 @@ test('canBuildCanonicalRequestV4', function (t) {
     var actual = signer4.buildCanonicalRequest(
         'GET',
         '/',
-        'Action=ListUsers&Version=2010-05-08',
+        mod_qs.parse('Action=ListUsers&Version=2010-05-08'),
         canonicalHeaders,
         [ 'content-type', 'host', 'x-amz-date' ],
         'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
@@ -48,7 +49,7 @@ test('canBuildCanonicalRequestWithQueryV4', function (t) {
     var actual = signer4.buildCanonicalRequest(
         'GET',
         '/foo/',
-        'delimiter=/',
+        mod_qs.parse('delimiter=/'),
         canonicalHeaders,
         [ 'host', 'x-amz-content-sha256', 'x-amz-date' ],
         'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
@@ -76,7 +77,7 @@ test('canBuildCanonicalRequestWithUnicodeQueryV4', function (t) {
     var actual = signer4.buildCanonicalRequest(
         'GET',
         '/foo/',
-        'delimiter=/&prefix=これ',
+        mod_qs.parse('delimiter=/&prefix=これ'),
         canonicalHeaders,
         [ 'host', 'x-amz-content-sha256', 'x-amz-date' ],
         'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'

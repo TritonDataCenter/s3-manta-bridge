@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 var utils = require('../../lib/utils');
 var test = require('tape');
@@ -13,14 +13,16 @@ test('parseDomainFromHostWithPort - can parse a hostname without a port', functi
 test('parseDomainFromHostWithPort - can parse a hostname with a port', function (t) {
     var hostname = 'subdomain.domain.tld:9977';
     var result = utils.parseDomainFromHostWithPort(hostname);
-    t.equal(result, 'subdomain.domain.tld', 'the hostname with a port should be just the domain');
+    t.equal(result, 'subdomain.domain.tld',
+        'the hostname with a port should be just the domain');
     t.end();
 });
 
 test('parseDomainFromHostWithPort - can deal with only a colon', function (t) {
     var hostname = ':';
     var result = utils.parseDomainFromHostWithPort(hostname);
-    t.equal(result, '', 'if the input is so bad that we only have a colon, return an empty string');
+    t.equal(result, '', 'if the input is so bad that we only have a colon, ' +
+        'return an empty string');
     t.end();
 });
 
@@ -60,7 +62,7 @@ test('parseSubdomain - will return null when no subdomain and TLD present', func
     t.end();
 });
 
-test('parseSubdomain - will return null when no subdomain and no TLD present', function (t) {
+test('parseSubdomain - null when no subdomain and no TLD present', function (t) {
     var domain = 'localhost';
     var expectation = null;
     var result = utils.parseSubdomain(domain);
@@ -89,7 +91,8 @@ test('splitFirstDirectory - can parse first directory from typical path', functi
     var result = utils.splitFirstDirectory(path);
 
     t.equal(result.first, '/root', 'expecting first directory to be extracted');
-    t.equal(result.remaining, 'first/second/file.txt', 'expecting remaining path to be returned');
+    t.equal(result.remaining, 'first/second/file.txt',
+        'expecting remaining path to be returned');
     t.end();
 });
 
@@ -107,7 +110,8 @@ test('splitFirstDirectory - can with relative paths', function(t) {
     var result = utils.splitFirstDirectory(path);
 
     t.equal(result.first, '/dir', 'expecting first directory to be extracted');
-    t.equal(result.remaining, 'file.txt', 'expecting relative remaining path to be resolved');
+    t.equal(result.remaining, 'file.txt',
+        'expecting relative remaining path to be resolved');
     t.end();
 });
 
@@ -130,7 +134,7 @@ test('splitFirstDirectory - can with relative paths', function(t) {
 test('sanitizeS3Filepath - double slashes will be collapsed', function(t) {
     var path = '/testbucket//test.log';
     var expected = '/testbucket/test.log';
-    var result = utils.sanitizeFilepath(path);
+    var result = utils.sanitizeS3Filepath(path);
 
     t.equal(result, expected, 'path should not have double slashes');
     t.end();
@@ -139,7 +143,7 @@ test('sanitizeS3Filepath - double slashes will be collapsed', function(t) {
 test('sanitizeS3Filepath - path must start with slash', function(t) {
     var path = 'testbucket/test.log';
     var expected = '/testbucket/test.log';
-    var result = utils.sanitizeFilepath(path);
+    var result = utils.sanitizeS3Filepath(path);
 
     t.equals(result, expected, 'all paths are relative to the root');
     t.end();
@@ -148,16 +152,16 @@ test('sanitizeS3Filepath - path must start with slash', function(t) {
 test('sanitizeS3Filepath - relative paths should not exist', function(t) {
     var path = '../testbucket/test.log';
     var expected = '/testbucket/test.log';
-    var result = utils.sanitizeFilepath(path);
+    var result = utils.sanitizeS3Filepath(path);
 
     t.equals(result, expected, 'relative paths are collapsed');
     t.end();
 });
 
-test('sanitizeS3Filepath - relative paths should not be in the middle of the path', function(t) {
+test('sanitizeS3Filepath - relative paths are not in the middle', function(t) {
     var path = '/testbucket/dir/../test.log';
     var expected = '/testbucket/test.log';
-    var result = utils.sanitizeFilepath(path);
+    var result = utils.sanitizeS3Filepath(path);
 
     t.equals(result, expected, 'relative paths are collapsed');
     t.end();
@@ -166,25 +170,25 @@ test('sanitizeS3Filepath - relative paths should not be in the middle of the pat
 test('sanitizeS3Filepath - there should be no leading or training spaces', function(t) {
     var path = ' /testbucket/test.log ';
     var expected = '/testbucket/test.log';
-    var result = utils.sanitizeFilepath(path);
+    var result = utils.sanitizeS3Filepath(path);
 
     t.equals(result, expected, 'leading and trailing spaces are removed');
     t.end();
 });
 
 test('sanitizeS3Filepath - there should be no tabs or new lines', function(t) {
-    var path = "/testbucket/\ttest\n\r.log";
+    var path = '/testbucket/\ttest\n\r.log';
     var expected = '/testbucket/test.log';
-    var result = utils.sanitizeFilepath(path);
+    var result = utils.sanitizeS3Filepath(path);
 
     t.equals(result, expected, 'leading and trailing spaces are removed');
     t.end();
 });
 
 test('sanitizeS3Filepath - there should be no tabs or new lines', function(t) {
-    var path = "/testbucket/\ttest\n\r.log";
+    var path = '/testbucket/\ttest\n\r.log';
     var expected = '/testbucket/test.log';
-    var result = utils.sanitizeFilepath(path);
+    var result = utils.sanitizeS3Filepath(path);
 
     t.equals(result, expected, 'leading and trailing spaces are removed');
     t.end();

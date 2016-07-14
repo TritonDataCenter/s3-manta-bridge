@@ -7,7 +7,7 @@
   "private": true,
   "scripts": {
     "start": "node ./app.js",
-    "test": "./node_modules/.bin/tape test/**/*_test.js"
+    "test": "./node_modules/.bin/tape test/unit/*.test.js"
   },
   "dependencies": {
     "assert-plus": "^1.0.0",

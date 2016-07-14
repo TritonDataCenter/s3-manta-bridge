@@ -1,0 +1,10 @@
+{
+  "extends": "eslint:recommended",
+  "prefer-const": "error",
+  "env": {
+    "node": true,
+    "browser": false,
+    "es6": true
+
+  }
+}

@@ -1,8 +1,6 @@
-"use strict";
+'use strict';
 
 var mod_fs = require('fs');
-var mod_lo = require('lodash');
-var mod_assert = require('assert-plus');
 var mod_request = require('sync-request');
 var mod_util = require('util');
 var mod_vasync = require('vasync');
@@ -20,11 +18,10 @@ var test = helper.test;
 
 test('server is alive', function (t) {
     t.plan(1);
-    var port = helper.config.serverPort;
-    var host = 'http://localhost:' + port;
+    var host = `http://localhost:${helper.config.serverPort}`;
     var res = mod_request('HEAD', host);
 
-    t.equal(res.statusCode, 405, "Expecting server to be reachable at " + host);
+    t.equal(res.statusCode, 405, `Expecting server to be reachable at ${host}`);
     t.end();
 });
 
@@ -37,19 +34,19 @@ test('test bucket subdomain is active', function(t) {
 
     /* A 404 means that we connected and it is the right status code
      * because there is no bucket at that location currently. */
-    t.equal(res.statusCode, 404, "Expecting server to be reachable at " + host);
+    t.equal(res.statusCode, 404, `Expecting server to be reachable at ${host}`);
     t.end();
 });
 
 test('can add an object', function(t) {
     var bucket = 'predictable-bucket-name';
     var object = 'sample.txt';
-    var filepath = '../../data/' + object;
+    var filepath = `${__dirname}/../../data/${object}`;
 
     mod_fs.readFile(filepath, function (err, data) {
-        t.ifError(err, filepath + ' read without problems');
-        s3.createBucket({ Bucket: bucket}, function(err) {
-            t.ifError(err, 'No error when creating [' + bucket + '] bucket');
+        t.ifError(err, `${filepath} read without problems`);
+        s3.createBucket({ Bucket: bucket}, function createS3Bucket(err) {
+            t.ifError(err, `No error when creating [${bucket}] bucket`);
 
             var params = {
                 Bucket: bucket,
@@ -57,7 +54,7 @@ test('can add an object', function(t) {
                 Body: data
             };
 
-            s3.putObject(params, function(err, data) {
+            s3.putObject(params, function putObjectS3(err) {
                 if (err) {
                     t.fail(err.message);
                 }
@@ -70,17 +67,17 @@ test('can add an object', function(t) {
 test('can get an object', function(t) {
     var bucket = 'predictable-bucket-name';
     var object = 'sample.txt';
-    var filepath = '../../data/' + object;
-    var mantaDir = helper.config.bucketPath + '/' + bucket;
-    var mantaPath = mantaDir + '/' + object;
+    var filepath = `${__dirname}/../../data/${object}`;
+    var mantaDir = `${helper.config.bucketPath}/${bucket}`;
+    var mantaPath = `${mantaDir}/${object}`;
 
     var fileStream = mod_fs.createReadStream(filepath, { autoClose: true });
-    var contents = mod_fs.readFileSync(filepath, "utf8");
+    var contents = mod_fs.readFileSync(filepath, 'utf8');
 
     t.plan(4);
 
     manta.put(mantaPath, fileStream, { mkdirs: true }, function putTestObj(err) {
-        t.ifError(err, 'Added ' + mantaPath + ' without problems');
+        t.ifError(err, `Added ${mantaPath} without problems`);
 
         var params = {
             Bucket: bucket,
@@ -88,7 +85,7 @@ test('can get an object', function(t) {
         };
 
         s3.getObject(params, function getObj(err, data) {
-            t.ifError(err, 'Got object ' + mantaPath + ' via the S3 API with errors');
+            t.ifError(err, `Got object ${mantaPath} via the S3 API with errors`);
 
             t.ok(data, 'S3 response present');
             var actualContents = data.Body.toString();
@@ -102,12 +99,12 @@ test('can get an object', function(t) {
 test('can add and get an object with metadata', function(t) {
     var bucket = 'predictable-bucket-name';
     var object = 'sample.txt';
-    var filepath = '../../data/' + object;
+    var filepath = `${__dirname}/../../data/${object}`;
 
     mod_fs.readFile(filepath, function (err, data) {
-        t.ifError(err, filepath + ' read without problems');
+        t.ifError(err, `${filepath} read without problems`);
         s3.createBucket({ Bucket: bucket}, function(err) {
-            t.ifError(err, 'No error when creating [' + bucket + '] bucket');
+            t.ifError(err, `No error when creating [${bucket}] bucket`);
 
             var params = {
                 Bucket: bucket,
@@ -125,7 +122,7 @@ test('can add and get an object with metadata', function(t) {
                 }
 
                 s3.getObject({ Bucket: bucket, Key: object }, function getObj(err, data) {
-                    t.ifError(err, 'Got object ' + object + ' via the S3 API with errors');
+                    t.ifError(err, `Got object ${object} via the S3 API with errors`);
 
                     t.ok(data, 'S3 response present');
                     var actualMetadata = data.Metadata;
@@ -141,12 +138,12 @@ test('can add and get an object with metadata', function(t) {
 test('can add and get an object with reduced redundancy', function(t) {
     var bucket = 'predictable-bucket-name';
     var object = 'sample.txt';
-    var filepath = '../../data/' + object;
+    var filepath = `${__dirname}/../../data/${object}`;
 
     mod_fs.readFile(filepath, function (err, data) {
-        t.ifError(err, filepath + ' read without problems');
+        t.ifError(err, `${filepath} read without problems`);
         s3.createBucket({ Bucket: bucket}, function(err) {
-            t.ifError(err, 'No error when creating [' + bucket + '] bucket');
+            t.ifError(err, `No error when creating [${bucket}] bucket`);
 
             var params = {
                 Bucket: bucket,
@@ -161,7 +158,7 @@ test('can add and get an object with reduced redundancy', function(t) {
                 }
 
                 s3.getObject({ Bucket: bucket, Key: object }, function getObj(err, data) {
-                    t.ifError(err, 'Got object ' + object + ' via the S3 API with errors');
+                    t.ifError(err, `Got object ${object} via the S3 API with errors`);
 
                     t.ok(data, 'S3 response present');
                     var actual = data.StorageClass;
@@ -197,16 +194,16 @@ test('cannot get a directory as an object', function(t) {
 test('can delete a single object', function(t) {
     var bucket = 'predictable-bucket-name';
     var object = 'sample.txt';
-    var filepath = '../../data/' + object;
-    var mantaDir = helper.config.bucketPath + '/' + bucket;
-    var mantaPath = mantaDir + '/' + object;
+    var filepath = `${__dirname}/../../data/${object}`;
+    var mantaDir = `${helper.config.bucketPath}/${bucket}`;
+    var mantaPath = `${mantaDir}/${object}`;
 
     var fileStream = mod_fs.createReadStream(filepath, { autoClose: true });
 
     t.plan(3);
 
     manta.put(mantaPath, fileStream, { mkdirs: true }, function (err) {
-        t.ifError(err, 'Added ' + mantaPath + ' without problems');
+        t.ifError(err, `Added ${mantaPath} without problems`);
 
         var params = {
             Bucket: bucket,
@@ -214,7 +211,7 @@ test('can delete a single object', function(t) {
         };
 
         s3.deleteObject(params, function (err, data) {
-            t.ifError(err, 'Deleted object ' + mantaPath + ' via the S3 API without errors');
+            t.ifError(err, `Deleted object ${mantaPath} via the S3 API without errors`);
 
             t.ok(data, 'S3 response present');
             t.end();
@@ -239,15 +236,15 @@ test('can list a bucket for objects', function(t) {
     var testData = 'Hello Manta!';
 
     var testContents = [
-        mod_util.format("%s/%s/dir1", helper.config.bucketPath, bucket),
-        mod_util.format("%s/%s/file1", helper.config.bucketPath, bucket),
-        mod_util.format("%s/%s/dir1/file2", helper.config.bucketPath, bucket),
-        mod_util.format("%s/%s/dir2", helper.config.bucketPath, bucket),
-        mod_util.format("%s/%s/dir3", helper.config.bucketPath, bucket),
-        mod_util.format("%s/%s/dir3/file3", helper.config.bucketPath, bucket),
-        mod_util.format("%s/%s/dir3/file4", helper.config.bucketPath, bucket),
-        mod_util.format("%s/%s/dir3/dir4/file5", helper.config.bucketPath, bucket),
-        mod_util.format("%s/%s/file6", helper.config.bucketPath, bucket)
+        mod_util.format('%s/%s/dir1', helper.config.bucketPath, bucket),
+        mod_util.format('%s/%s/file1', helper.config.bucketPath, bucket),
+        mod_util.format('%s/%s/dir1/file2', helper.config.bucketPath, bucket),
+        mod_util.format('%s/%s/dir2', helper.config.bucketPath, bucket),
+        mod_util.format('%s/%s/dir3', helper.config.bucketPath, bucket),
+        mod_util.format('%s/%s/dir3/file3', helper.config.bucketPath, bucket),
+        mod_util.format('%s/%s/dir3/file4', helper.config.bucketPath, bucket),
+        mod_util.format('%s/%s/dir3/dir4/file5', helper.config.bucketPath, bucket),
+        mod_util.format('%s/%s/file6', helper.config.bucketPath, bucket)
     ];
 
     var addTestData = function addTestData(path, cb) {
@@ -276,7 +273,8 @@ test('can list a bucket for objects', function(t) {
         s3.listObjects(params, function(err, data) {
             t.ifError(err, 'No errors listing objects in bucket');
 
-            t.equal(data.Delimiter, '/', 'Assume forward slash for delimiter because none specified');
+            t.equal(data.Delimiter, '/', 'Assume forward slash for delimiter ' +
+                'because none specified');
             t.equal(data.Prefix, '', 'Assume empty prefix because none specified');
             t.equal(data.Marker, '', 'Assume empty marker because none specified');
             t.equal(data.MaxKeys, 1000, 'Assume 1000 keys by default');
@@ -301,16 +299,16 @@ test('can list a bucket for objects', function(t) {
 test('can get the ACL for an object', function(t) {
     var bucket = 'predictable-bucket-name';
     var object = 'sample.txt';
-    var filepath = '../../data/' + object;
-    var mantaDir = helper.config.bucketPath + '/' + bucket;
-    var mantaPath = mantaDir + '/' + object;
+    var filepath = `${__dirname}/../../data/${object}`;
+    var mantaDir = `${helper.config.bucketPath}/${bucket}`;
+    var mantaPath = `${mantaDir}/${object}`;
 
     var fileStream = mod_fs.createReadStream(filepath, { autoClose: true });
 
     t.plan(3);
 
     manta.put(mantaPath, fileStream, { mkdirs: true }, function (err) {
-        t.ifError(err, 'Added ' + mantaPath + ' without problems');
+        t.ifError(err, `Added ${mantaPath} without problems`);
 
         var params = {
             Bucket: bucket,
@@ -318,7 +316,7 @@ test('can get the ACL for an object', function(t) {
         };
 
         s3.getObjectAcl(params, function (err, data) {
-            t.ifError(err, 'Acl returned for object ' + mantaPath + ' via the S3 API without errors');
+            t.ifError(err, `Acl returned for object ${mantaPath} via the S3 API without errors`);
 
             t.ok(data, 'S3 response present');
             t.end();
@@ -330,16 +328,16 @@ test('can copy an object between directories', function(t) {
     var bucket = 'predictable-bucket-name';
     var source = 'sample.txt';
     var destination = 'dir1/sample-copy.txt';
-    var filepath = '../../data/' + source;
-    var mantaDir = helper.config.bucketPath + '/' + bucket;
-    var mantaPath = mantaDir + '/' + source;
+    var filepath = `${__dirname}/../../data/${source}`;
+    var mantaDir = `${helper.config.bucketPath}/${bucket}`;
+    var mantaPath = `${mantaDir}/${source}`;
 
     var fileStream = mod_fs.createReadStream(filepath, { autoClose: true });
 
-    t.plan(5);
+    t.plan(4);
 
     manta.put(mantaPath, fileStream, { mkdirs: true }, function (err) {
-        t.ifError(err, 'Added ' + mantaPath + ' without problems');
+        t.ifError(err, `Added ${mantaPath} without problems`);
 
         var params = {
             Bucket: bucket,
@@ -348,11 +346,11 @@ test('can copy an object between directories', function(t) {
         };
 
         s3.copyObject(params, function (err, data) {
-            t.ifError(err, 'Object copied to ' + destination + ' via the S3 API without errors');
+            t.ifError(err, `Object copied to ${destination} via the S3 API without errors`);
 
             t.ok(data, 'S3 response present');
 
-            manta.info(mantaDir + '/' + destination, function dstCheck(lnErr, info) {
+            manta.info(`${mantaDir}/${destination}`, function dstCheck(lnErr) {
                 t.ifError(lnErr, 'Object arrived as expected in destination');
                 t.end();
             });

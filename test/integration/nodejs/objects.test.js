@@ -5,6 +5,7 @@ var mod_request = require('sync-request');
 var mod_util = require('util');
 var mod_vasync = require('vasync');
 var mod_stream = require('stream');
+var mod_lo = require('lodash');
 
 ///--- Globals
 var helper = require('./helper');
@@ -97,16 +98,16 @@ test('can get an object', function(t) {
 });
 
 test('can add and get an object with metadata', function(t) {
-    var bucket = 'predictable-bucket-name';
-    var object = 'sample.txt';
-    var filepath = `${__dirname}/../../data/${object}`;
+    let bucket = 'predictable-bucket-name';
+    let object = 'sample.txt';
+    let filepath = `${__dirname}/../../data/${object}`;
 
     mod_fs.readFile(filepath, function (err, data) {
         t.ifError(err, `${filepath} read without problems`);
         s3.createBucket({ Bucket: bucket}, function(err) {
             t.ifError(err, `No error when creating [${bucket}] bucket`);
 
-            var params = {
+            let params = {
                 Bucket: bucket,
                 Key: object,
                 Body: data,
@@ -125,6 +126,7 @@ test('can add and get an object with metadata', function(t) {
                     t.ifError(err, `Got object ${object} via the S3 API with errors`);
 
                     t.ok(data, 'S3 response present');
+                    t.ok(mod_lo.hasIn(data, 'Metadata'), 'Metadata is associated with object');
                     var actualMetadata = data.Metadata;
                     t.deepEqual(actualMetadata, params.Metadata, 'Metadata is as expected');
 

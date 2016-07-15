@@ -1,21 +1,21 @@
 'use strict';
 
-var assert = require('assert-plus');
-var AWS = require('aws-sdk');
-var proxy = require('proxy-agent');
-var bunyan = require('bunyan');
-var mod_lo = require('lodash');
+let assert = require('assert-plus');
+let AWS = require('aws-sdk');
+let proxy = require('proxy-agent');
+let bunyan = require('bunyan');
+let mod_lo = require('lodash');
 
-var config;
+let config;
 
-var log = bunyan.createLogger({
+let log = bunyan.createLogger({
     level: (process.env.LOG_LEVEL || 'debug'),
     name: 's3-client',
     stream: process.stdout
 });
 
 function client() {
-    var httpOptions = {};
+    let httpOptions = {};
 
     if (process.env.http_proxy) {
         log.debug('Using proxy with S3 client: %s', process.env.http_proxy);
@@ -33,7 +33,7 @@ function client() {
         throw new Error('Server port is not configured. See configuration file.');
     }
 
-    var client = new AWS.S3({
+    let client = new AWS.S3({
         apiVersion: '2006-03-01',
         params: {},
         httpOptions: httpOptions,

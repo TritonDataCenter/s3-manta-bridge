@@ -9,7 +9,7 @@ RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selectio
 # Upgrade and add packages
 RUN apt-get update -qq && \
     apt-get purge -qq -y openssh-server openssh-client openssh-sftp-server && \
-    apt-get install -qq -y python htop && \
+    apt-get install -qq -y python htop dc && \
     apt-get autoremove -qq -y && \
     apt-get upgrade -qq -y -o Dpkg::Options::="--force-confold"
 

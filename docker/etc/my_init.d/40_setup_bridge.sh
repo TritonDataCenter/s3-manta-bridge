@@ -62,9 +62,12 @@ echo "Copying private key to app home"
 mkdir -p /home/app/.ssh
 echo "${MANTA_KEY_CONTENT}" > /home/app/.ssh/id_rsa
 
-echo "Setting process limit variables"
+# Add folder for environment vars passed to Ngnix
 mkdir -p /etc/service/nginx/env
-PROC_LIMIT="$(/usr/local/bin/proclimit.sh)"
+
+echo "Setting process limit variables"
+# The output of proclimit is very conservative, so we increase it by 2
+PROC_LIMIT="`echo 3 $(/usr/local/bin/proclimit.sh) + pq | dc`"
 echo ${PROC_LIMIT} > /etc/service/nginx/env/PROC_LIMIT
 
 # Explicitly setting worker processes

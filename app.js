@@ -6,24 +6,24 @@
 
 'use strict';
 
-var mod_assert = require('assert-plus');
-var mod_bunyan = require('bunyan');
-var mod_clone = require('clone');
-var mod_gtunnel = require('global-tunnel');
+let mod_assert = require('assert-plus');
+let mod_bunyan = require('bunyan');
+let mod_clone = require('clone');
+let mod_gtunnel = require('global-tunnel');
 
 ///--- Globals
 
-var utils = require('./lib/utils');
-var app = require('./lib');
+let utils = require('./lib/utils');
+let app = require('./lib');
 
-var DEFAULTS = {
+let DEFAULTS = {
     file: process.cwd() + '/etc/config.json',
     port: 80
 };
 
-var NAME = 's3-manta-bridge';
+let NAME = 's3-manta-bridge';
 
-var LOG = mod_bunyan.createLogger({
+let LOG = mod_bunyan.createLogger({
     name: NAME,
     level: (process.env.LOG_LEVEL || 'info'),
     stream: process.stdout
@@ -37,11 +37,11 @@ if (process.env.http_proxy || process.env.https_proxy) {
 function run(options) {
     mod_assert.object(options);
 
-    var opts = mod_clone(options);
+    let opts = mod_clone(options);
     opts.log = LOG;
     opts.name = NAME;
 
-    var server = app.createServer(opts);
+    let server = app.createServer(opts);
     server.listen(options.serverPort.toString(), function () {
         opts.log.info('%s listening at %s', server.name, server.url);
     });

@@ -187,7 +187,7 @@ test('cannot get a directory as an object', function(t) {
         };
 
         s3.getObject(params, function getObj(err) {
-            t.equal(err.code, 404, 'Expecting 404 from server for directory requested as object');
+            t.equal(err.statusCode, 404, 'Expecting 404 from server for directory requested as object');
             t.end();
         });
     });

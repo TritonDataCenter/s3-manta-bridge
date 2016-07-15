@@ -23,6 +23,11 @@ let DEFAULTS = {
 
 let NAME = 's3-manta-bridge';
 
+/**
+ * Bunyan logger.
+ * @external Logger
+ * @see {@link https://github.com/trentm/node-bunyan/blob/master/lib/bunyan.js}
+ */
 let LOG = mod_bunyan.createLogger({
     name: NAME,
     level: (process.env.LOG_LEVEL || 'info'),

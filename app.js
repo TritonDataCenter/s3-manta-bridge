@@ -4,17 +4,16 @@
  * @module app
  */
 
-"use strict";
+'use strict';
 
 var mod_assert = require('assert-plus');
 var mod_bunyan = require('bunyan');
 var mod_clone = require('clone');
 var mod_gtunnel = require('global-tunnel');
-var mod_lo = require('lodash');
-var mod_resolve_env = require('resolve-env');
 
 ///--- Globals
 
+var utils = require('./lib/utils');
 var app = require('./lib');
 
 var DEFAULTS = {
@@ -74,14 +73,10 @@ function run(options) {
 ///--- Mainline
 
 (function main() {
-    var config = require(DEFAULTS.file);
+    let config = require(DEFAULTS.file);
 
     // We interpolate each configuration value with user-specified env vars
-    mod_lo.forOwn(config, function interpolateEnv(v, k) {
-        if (mod_lo.isString(v)) {
-            config[k] = mod_lo.trim(mod_resolve_env(v));
-        }
-    });
+    utils.interpolateEnvVars(config);
 
     LOG.debug({
         config: config

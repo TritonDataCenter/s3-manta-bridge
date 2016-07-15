@@ -9,6 +9,7 @@
     "start": "node ./app.js",
     "test": "./node_modules/.bin/tape test/unit/*.test.js"
   },
+  "engine": "node 4.4.7",
   "dependencies": {
     "assert-plus": "^1.0.0",
     "bunyan": "^1.8.0",

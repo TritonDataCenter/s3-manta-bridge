@@ -1,23 +1,19 @@
-"use strict";
+'use strict';
 
-var assert = require('assert-plus');
-var bunyan = require('bunyan');
-var uuid = require('node-uuid');
-var mod_lo = require('lodash');
-var mod_resolve_env = require('resolve-env');
-var config = require('../../../etc/config.json');
+let assert = require('assert-plus');
+let bunyan = require('bunyan');
+let options = require('../../../etc/config.json');
+let utils = require('../../../lib/utils');
+let MantaClientFactory = require('../../../lib/manta_client');
 
 // We interpolate each configuration value with user-specified env vars
-mod_lo.forOwn(config, function interpolateEnv(v, k) {
-    if (mod_lo.isString(v)) {
-        config[k] = mod_lo.trim(mod_resolve_env(v));
-    }
-});
+utils.interpolateEnvVars(options);
 
 /** @type {MantaClient} */
-var manta = require('../../../lib/manta_client').client();
+let manta = MantaClientFactory.create(options);
+
 /** @type {AWS.S3} */
-var s3 = require('./s3_client')(config).client();
+let s3 = require('./s3_client')(options).client();
 
 function createLogger(name, stream) {
     var log = bunyan.createLogger({
@@ -32,41 +28,54 @@ function createLogger(name, stream) {
 }
 
 function setup(tape) {
-    assert.object(config);
+    assert.object(options);
 
-    manta.mkdirp(config.bucketPath, function (err) {
-        tape.ifError(err, 'Creating bucket path: ' + config.bucketPath);
+    manta.mkdirp(options.bucketPath, function (err) {
+        tape.ifError(err, 'Creating bucket path: ' + options.bucketPath);
         tape.end();
     });
 }
 
 function teardown(tape) {
-    assert.object(config);
-    manta.rmr(config.bucketPath, {}, function (err) {
-        // do nothing
-
-        tape.ifError(err, 'Cleaning up test Manta files: ' + config.bucketPath);
-        tape.end();
+    assert.object(options);
+    manta.rmr(options.bucketPath, {}, function (err) {
+        /* Sometimes when you are on a flaky connection (like a tethered
+         * mobile phone), there are a lot of connection timeouts on test cleanup
+         * operations. Below, we give the client another chance to execute the
+         * cleanup operation. */
+        if (err && err.name === 'ConnectTimeoutError') {
+            manta.rmr(options.bucketPath, {}, function retryRm(err) {
+                tape.ifError(err, 'Successful retry for cleaning up test Manta files: ' +
+                    options.bucketPath);
+                tape.end();
+            });
+        // If everything goes right, we land here
+        } else {
+            tape.ifError(err, `Cleaning up test Manta files: ${options.bucketPath}`);
+            tape.end();
+        }
     });
 }
 
-var tape = require('tape');
-var test = require('wrapping-tape')({
+let tape = require('tape');
+let test = require('wrapping-tape')({
     setup: setup,
     teardown: teardown
 });
 
 tape.onFinish(function cleanup() {
-    console.log("# onFinish");
+    /* eslint-disable no-console */
+    console.log('# onFinish');
 
     if (manta) {
-        console.log("Closing Manta client");
+        console.log('Closing Manta client');
         manta.close();
     }
+    /* eslint-enable no-console */
 });
 
 module.exports = {
-    config: config,
+    config: options,
     createLogger: createLogger,
     mantaClient: manta,
     s3Client: s3,

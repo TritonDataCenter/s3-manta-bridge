@@ -8,7 +8,6 @@ if [ -z "$S3_BRIDGE_HOST" ]; then
     exit 1
 fi
 
-
 if [ -z "$AWS_ACCESS_KEY_ID" ]; then
     >&2 echo "AWS_ACCESS_KEY_ID not set - exiting"
     exit 1

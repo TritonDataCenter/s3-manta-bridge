@@ -21,6 +21,16 @@
   "durabilityMappingToStorageClass": {
     "2": "STANDARD",
     "1": "REDUCED_REDUNDANCY"
+  },
+  "manta": {
+    "user": "$MANTA_USER",
+    "subuser": "$MANTA_SUBUSER",
+    "role": "$MANTA_ROLE",
+    "insecure": "$MANTA_TLS_INSECURE",
+    "keyId": "$MANTA_KEY_ID",
+    "url": "$MANTA_URL",
+    "privateKeyPath": "$MANTA_KEY_PATH",
+    "connectTimeout": 4000
   }
 }
 

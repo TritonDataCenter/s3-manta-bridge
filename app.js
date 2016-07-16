@@ -13,12 +13,11 @@ let mod_gtunnel = require('global-tunnel');
 
 ///--- Globals
 
-let utils = require('./lib/utils');
+let Options = require('./lib/options');
 let app = require('./lib');
 
 let DEFAULTS = {
-    file: process.cwd() + '/etc/config.json',
-    port: 80
+    file: process.cwd() + '/etc/config.json'
 };
 
 let NAME = 's3-manta-bridge';
@@ -35,7 +34,7 @@ let LOG = mod_bunyan.createLogger({
 });
 
 if (process.env.http_proxy || process.env.https_proxy) {
-    LOG.info("Requests to Manta are being sent through a proxy");
+    LOG.info('Requests to Manta are being sent through a proxy');
     mod_gtunnel.initialize();
 }
 
@@ -78,14 +77,11 @@ function run(options) {
 ///--- Mainline
 
 (function main() {
-    let config = require(DEFAULTS.file);
-
-    // We interpolate each configuration value with user-specified env vars
-    utils.interpolateEnvVars(config);
+    let options = new Options(require(DEFAULTS.file));
 
     LOG.debug({
-        config: config
+        config: options
     }, 'main: options and config parsed');
 
-    run(config);
+    run(options);
 })();

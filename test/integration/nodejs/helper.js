@@ -2,12 +2,10 @@
 
 let assert = require('assert-plus');
 let bunyan = require('bunyan');
-let options = require('../../../etc/config.json');
-let utils = require('../../../lib/utils');
+let Options = require('../../../lib/options');
 let MantaClientFactory = require('../../../lib/manta_client');
 
-// We interpolate each configuration value with user-specified env vars
-utils.interpolateEnvVars(options);
+let options = new Options(require('../../../etc/config.json'));
 
 /** @type {MantaClient} */
 let manta = MantaClientFactory.create(options);

@@ -1,7 +1,5 @@
 /**
- * Central entry point to s3 to Manta bridge API.
- *
- * @module app
+ * @file Central entry point to s3 to Manta bridge API.
  */
 
 'use strict';
@@ -38,6 +36,11 @@ if (process.env.http_proxy || process.env.https_proxy) {
     mod_gtunnel.initialize();
 }
 
+/**
+ * Starts the server process and catches exit signals. 
+ * 
+ * @param {object} options configuration options loaded when server is started
+ */
 function run(options) {
     mod_assert.object(options);
 

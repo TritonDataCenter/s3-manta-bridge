@@ -80,7 +80,8 @@ function run(options) {
 ///--- Mainline
 
 (function main() {
-    let options = new Options(require(DEFAULTS.file));
+    let configOptions = require(DEFAULTS.file);
+    let options = new Options(configOptions);
 
     LOG.debug({
         config: options

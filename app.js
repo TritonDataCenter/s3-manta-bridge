@@ -12,7 +12,7 @@ let mod_gtunnel = require('global-tunnel');
 ///--- Globals
 
 let Options = require('./lib/options');
-let app = require('./lib');
+let BridgeServer = require('./lib/server');
 
 let DEFAULTS = {
     file: process.cwd() + '/etc/config.json'
@@ -48,7 +48,7 @@ function run(options) {
     opts.log = LOG;
     opts.name = NAME;
 
-    let server = app.createServer(opts);
+    let server = new BridgeServer(options);
     server.listen(options.serverPort.toString(), function () {
         opts.log.info('%s listening at %s', server.name, server.url);
     });

@@ -20,7 +20,7 @@ test('canBuildCanonicalRequestV4', function (t) {
         'host:iam.amazonaws.com\n' +
         'x-amz-date:20150830T123600Z\n';
 
-    let actual = SignerV4.buildCanonicalRequest(
+    let actual = SignerV4._buildCanonicalRequest(
         'GET',
         '/',
         mod_qs.parse('Action=ListUsers&Version=2010-05-08'),
@@ -48,7 +48,7 @@ test('canBuildCanonicalRequestWithQueryV4', function (t) {
         'x-amz-content-sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\n' +
         'x-amz-date:20160510T234533Z\n';
 
-    let actual = SignerV4.buildCanonicalRequest(
+    let actual = SignerV4._buildCanonicalRequest(
         'GET',
         '/foo/',
         mod_qs.parse('delimiter=/'),
@@ -76,7 +76,7 @@ test('canBuildCanonicalRequestWithUnicodeQueryV4', function (t) {
         'x-amz-content-sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\n' +
         'x-amz-date:20160511T002340Z\n';
 
-    let actual = SignerV4.buildCanonicalRequest(
+    let actual = SignerV4._buildCanonicalRequest(
         'GET',
         '/foo/',
         mod_qs.parse('delimiter=/&prefix=これ'),
@@ -101,7 +101,7 @@ test('canHashCanonicalRequestV4', function(t) {
         'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
 
     let expected = 'f536975d06c0309214f805bb90ccff089219ecd68b2577efef23edd43b7e1a59';
-    let actual = SignerV4.hashAsHex(canonicalRequest);
+    let actual = SignerV4._hashAsHex(canonicalRequest);
 
     t.equal(actual, expected, 'Canonical request hashed as expected');
 
@@ -114,14 +114,14 @@ test('canBuildStringToSignV4', function (t) {
         '20150830/us-east-1/iam/aws4_request\n' +
         'f536975d06c0309214f805bb90ccff089219ecd68b2577efef23edd43b7e1a59';
 
-    let actual = SignerV4.buildStringToSign(
+    let actual = SignerV4._buildStringToSign(
         '20150830T123600Z',
         'f536975d06c0309214f805bb90ccff089219ecd68b2577efef23edd43b7e1a59',
         '20150830',
         'us-east-1',
         'iam');
 
-    t.equal(actual, expected, 'String to sign was constructed as expected');
+    t.equal(actual, expected, 'String to _sign was constructed as expected');
 
     t.end();
 });
@@ -139,7 +139,7 @@ test('canBuildSigningKeyV4', function (t) {
         57, 62, 68, 183, 3, 87, 27, 85, 204, 40, 66, 77, 26, 94, 134, 218, 110,
         211, 193, 84, 164, 185 ]);
 
-    let actual = SignerV4.buildSigningKey(parts, secretKey);
+    let actual = SignerV4._buildSigningKey(parts, secretKey);
 
     t.equal(
         actual.toString('hex'),
@@ -162,7 +162,7 @@ test('canBuildSignatureV4', function (t) {
 
     let expected = '5d672d79c15b13162d9279b0855cfba6789a8edb4c82c400e06b5924a6f2b5d7';
 
-    let actual = SignerV4.buildSignature(signingKey, stringToSign);
+    let actual = SignerV4._buildSignature(signingKey, stringToSign);
 
     t.equal(actual, expected, 'Signature was generated correctly');
 

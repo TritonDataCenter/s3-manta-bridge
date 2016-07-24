@@ -173,7 +173,40 @@ test('can add and get an object with reduced redundancy', function(t) {
     });
 });
 
-test('cannot get a directory as an object', function(t) {
+test('can add a directory', function(t) {
+    let bucket = 'predictable-bucket-name';
+    let directory = 'test-directory/';
+    let mantaDir = `${helper.config.bucketPath}/${bucket}`;
+    let mantaPath = `${mantaDir}/${directory}`;
+
+
+    s3.createBucket({ Bucket: bucket}, function(createBucketErr) {
+        t.ifError(createBucketErr, `No error when creating [${bucket}] bucket`);
+
+        let params = {
+            Bucket: bucket,
+            Key: directory
+        };
+
+        s3.putObject(params, function(err) {
+            if (err) {
+                t.fail(err.message);
+            }
+
+            manta.info(mantaPath, function(mantaInfoError, info) {
+                if (mantaInfoError) {
+                    t.fail(mantaInfoError.message);
+                }
+
+                t.equals(info.name, mod_lo.trimEnd(directory, '/'));
+                t.equals(info.type, 'application/x-json-stream; type=directory');
+                t.end();
+            });
+        });
+    });
+});
+
+test('can\'t get a directory as an object', function(t) {
     let bucket = 'predictable-bucket-name';
     let object = 'test-directory';
     let mantaPath = helper.config.bucketPath + '/' + bucket + '/' + object;
@@ -275,7 +308,7 @@ test('can list a bucket for objects', function(t) {
         s3.listObjects(params, function(err, data) {
             t.ifError(err, 'No errors listing objects in bucket');
 
-            t.equal(data.Delimiter, '/', 'Assume forward slash for delimiter ' +
+            t.equals(data.Delimiter, '/', 'Assume forward slash for delimiter ' +
                 'because none specified');
             t.equal(data.Prefix, '', 'Assume empty prefix because none specified');
             t.equal(data.Marker, '', 'Assume empty marker because none specified');
@@ -298,6 +331,31 @@ test('can list a bucket for objects', function(t) {
     });
 });
 
+test('can list multi-part uploads', function(t) {
+    let bucket = 'predictable-bucket-name';
+    let mantaDir = `${helper.config.bucketPath}/${bucket}`;
+
+    t.plan(6);
+
+    manta.mkdirp(mantaDir, function (err) {
+        t.ifError(err, `Created ${mantaDir} without problems`);
+
+        let params = {
+            Bucket: bucket
+        };
+
+        s3.listMultipartUploads(params, function (err, data) {
+            t.ifError(err, `Multipart response for bucket [${bucket}]returned without errors`);
+
+            t.ok(data, 'S3 response present');
+            t.equals(data.Bucket, bucket, `Bucket specified [${bucket}] was in result`);
+            t.equals(data.IsTruncated, false);
+            t.equals(data.MaxUploads, 1000);
+            t.end();
+        });
+    });
+});
+
 test('can get the ACL for an object', function(t) {
     let bucket = 'predictable-bucket-name';
     let object = 'sample.txt';
@@ -307,7 +365,7 @@ test('can get the ACL for an object', function(t) {
 
     let fileStream = mod_fs.createReadStream(filepath, { autoClose: true });
 
-    t.plan(3);
+    t.plan(5);
 
     manta.put(mantaPath, fileStream, { mkdirs: true }, function (err) {
         t.ifError(err, `Added ${mantaPath} without problems`);
@@ -321,6 +379,9 @@ test('can get the ACL for an object', function(t) {
             t.ifError(err, `Acl returned for object ${mantaPath} via the S3 API without errors`);
 
             t.ok(data, 'S3 response present');
+            t.ok(data.Owner, 'Owner present in response');
+            t.ok(data.Grants, 'Grants present in response');
+
             t.end();
         });
     });

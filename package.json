@@ -3,7 +3,7 @@
   "description": "Use the S3 API to interface with a Manta object store",
   "author": "Elijah Zupancic",
   "license": "MPL-2.0",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "start": "node ./app.js",

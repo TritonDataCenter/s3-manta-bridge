@@ -6,6 +6,7 @@ let mod_util = require('util');
 let mod_vasync = require('vasync');
 let mod_stream = require('stream');
 let mod_lo = require('lodash');
+let mod_url = require('url');
 
 ///--- Globals
 let helper = require('./helper');
@@ -30,7 +31,8 @@ test('test bucket subdomain is active', function(t) {
     let bucket = 'predictable-bucket-name';
 
     let port = helper.config.serverPort;
-    let host = 'http://' + bucket + '.localhost:' + port;
+    let host = `http://${bucket}.${helper.config.baseHostname}:${port}`;
+    t.ok(mod_url.parse(host), `A valid host was constructed: ${host}`);
     let res = mod_request('HEAD', host);
 
     /* A 404 means that we connected and it is the right status code
@@ -39,10 +41,11 @@ test('test bucket subdomain is active', function(t) {
     t.end();
 });
 
-test('can add an object', function(t) {
+function verifyObjectUpload(object, expected, t, next) {
     let bucket = 'predictable-bucket-name';
-    let object = 'sample.txt';
-    let filepath = `${__dirname}/../../data/${object}`;
+    let mantaDir = `${helper.config.bucketPath}/${bucket}`;
+    let mantaPath = `${mantaDir}/${expected}`;
+    let filepath = `${__dirname}/../../data/sample.txt`;
 
     mod_fs.readFile(filepath, function (err, data) {
         t.ifError(err, `${filepath} read without problems`);
@@ -59,9 +62,58 @@ test('can add an object', function(t) {
                 if (err) {
                     t.fail(err.message);
                 }
-                t.end();
+
+                manta.info(mantaPath, function(mantaInfoError, info) {
+                    t.ifError(mantaInfoError, `Object [${expected}] should be available`);
+
+                    t.equals(info.name, expected,
+                        `Uploaded name and actual name are identical [${info.name}=${expected}]`);
+
+                    next(t);
+                });
             });
         });
+    });
+}
+
+test('can add an object [sample.txt]', function(t) {
+    let object = 'sample.txt';
+
+    verifyObjectUpload(object, object, t, function(t) {
+        t.end();
+    });
+});
+
+test('can add an object [server-enterprise_4.0.0-dp-macos_x86_64.zip]', function(t) {
+    let object = 'server-enterprise_4.0.0-dp-macos_x86_64.zip';
+
+    verifyObjectUpload(object, object, t, function(t) {
+        t.end();
+    });
+});
+
+test('can add an object [filename with spaces.txt]', function(t) {
+    let object = 'filename with spaces.txt';
+
+    verifyObjectUpload(object, object, t, function(t) {
+        t.end();
+    });
+});
+
+test('can add an object [ユニコード文字テスト.txt]', function(t) {
+    let object = 'ユニコード文字テスト.txt';
+
+    verifyObjectUpload(object, object, t, function(t) {
+        t.end();
+    });
+});
+
+test('relative paths are stripped [../bad_filename.txt]', function(t) {
+    let object = '../bad_filename.txt';
+    let expected = 'bad_filename.txt';
+
+    verifyObjectUpload(object, expected, t, function(t) {
+        t.end();
     });
 });
 
@@ -209,10 +261,10 @@ test('can add a directory', function(t) {
 test('can\'t get a directory as an object', function(t) {
     let bucket = 'predictable-bucket-name';
     let object = 'test-directory';
-    let mantaPath = helper.config.bucketPath + '/' + bucket + '/' + object;
+    let mantaPath = `${helper.config.bucketPath}/${bucket}/${object}`;
 
     manta.mkdirp(mantaPath, function(err) {
-        t.ifError(err, mantaPath + ' directory created without a problem');
+        t.ifError(err, `${mantaPath} directory created without a problem`);
 
         let params = {
             Bucket: bucket,

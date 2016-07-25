@@ -4,7 +4,7 @@ We love pull requests from everyone.
 
 Fork, then clone the repo:
 
-    git clone git@github.com:your-username/joyent/java-manta.git
+    git clone git@github.com:your-username/dekobon/s3-manta-bridge.git
 
 For running integration tests, you will need an account on a Manta system this could
 be the [Joyent Public Cloud](https://www.joyent.com/public-cloud) or an 

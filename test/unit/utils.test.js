@@ -211,3 +211,12 @@ test('sanitizeS3Filepath - a root path should remain unchanged', function(t) {
     t.equals(result, expected, 'root path wasn\'t preserved');
     t.end();
 });
+
+test('sanitizeS3Filepath - a file name with dots should work', function(t) {
+    let path = '/myname/stor/directory/server_4.0.0-dp-macos_x86_64.zip';
+    let expected = path;
+
+    let result = Utils.sanitizeS3Filepath(path);
+    t.equals(result, expected, 'file path was modified');
+    t.end();
+});

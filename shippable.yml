@@ -1,0 +1,28 @@
+# Language setting
+language: node_js
+
+# Version number
+node_js:
+  - 4.4.7
+
+build:
+  pre_ci_boot:
+    image_name: drydock/u14nod
+    image_tag: prod
+    pull: true
+    options: '--privileged=true --net=bridge -e S3_BRIDGE_HOST=localhost -e AWS_ACCESS_KEY_ID=DFG8HNSDFSKEHLCZE2311 -e AWS_SECRET_ACCESS_KEY=8fd47hgflop23jncz21oki9456sfd340fs2ldf3ps'
+
+  pre_ci:
+    - echo "this is master branch"
+
+  ci:
+    - npm install
+
+  post_ci:
+    - ls -a
+    - pwd
+
+  cache: true
+
+  cache_dir_list:
+    - $SHIPPABLE_BUILD_DIR/node_modules

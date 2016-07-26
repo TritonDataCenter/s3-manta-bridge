@@ -1,26 +1,38 @@
 # Language setting
 language: node_js
 
+build_image: drydock/u14nod:prod
+
 # Version number
 node_js:
   - 4.4.7
+
+env:
+  - S3_BRIDGE_HOST=localhost
+  - AWS_ACCESS_KEY_ID=DFG8HNSDFSKEHLCZE2311
+  - AWS_SECRET_ACCESS_KEY=8fd47hgflop23jncz21oki9456sfd340fs2ldf3ps
+  - XUNIT_FILE=shippable/testresults/result.xml
 
 build:
   pre_ci_boot:
     image_name: drydock/u14nod
     image_tag: prod
     pull: true
-    options: '--privileged=true --net=bridge -e S3_BRIDGE_HOST=localhost -e AWS_ACCESS_KEY_ID=DFG8HNSDFSKEHLCZE2311 -e AWS_SECRET_ACCESS_KEY=8fd47hgflop23jncz21oki9456sfd340fs2ldf3ps'
+    options: '--privileged=true --net=bridge'
 
   pre_ci:
-    - echo "this is master branch"
+    - mkdir -p shippable/testresults
+    - mkdir -p shippable/codecoverage
 
   ci:
     - npm install
+    - npm install --save-dev instanbul
+    - echo 'Running unit tests'
+    - npm test
 
   post_ci:
-    - ls -a
-    - pwd
+    - ./node_modules/.bin/istanbul cover grunt -- -u tdd
+    - ./node_modules/.bin/istanbul report cobertura --dir  shippable/codecoverage/
 
   cache: true
 

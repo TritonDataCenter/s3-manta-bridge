@@ -27,6 +27,7 @@ build:
     - npm install tap-xunit
     - echo 'Running unit tests'
     - npm test | ./node_modules/.bin/tap-xunit > shippable/testresults/unit.xml
+    - ls shippable/testresults/
     - ./node_modules/.bin/tape test/integration/nodejs/*.test.js | ./node_modules/.bin/tap-xunit > shippable/testresults/integration-nodejs.xml
 
   post_ci:

@@ -8,10 +8,9 @@ node_js:
   - 4.4.7
 
 env:
-  - S3_BRIDGE_HOST=localhost
-  - AWS_ACCESS_KEY_ID=DFG8HNSDFSKEHLCZE2311
-  - AWS_SECRET_ACCESS_KEY=8fd47hgflop23jncz21oki9456sfd340fs2ldf3ps
-  - XUNIT_FILE=shippable/testresults/result.xml
+  global:
+    - S3_BRIDGE_HOST=localhost XUNIT_FILE=shippable/testresults/result.xml
+    - secure: gvB1GYWALRhPsEkgW9pi/Fqo6JRmHjZ9vbuBiIWHiMrlCc00YqV0XcnN1uVrOOcJUc4aK/qcFAXiWgA83Rv/FBRvHXh1wvaayobwOJZlmuxFYDHJnd8LytUf4uRJy7OLhsH+BoxR6BrtCIefE1gZ757b2mYxYAE9vUpA2oZVFkBbPHUk3k/VpTyOdY5OXle07wdIcXGywX56tx4ko9R8bKfMUsiveTFxkWoWto99aIGm7oFyjGRH2pf5iC3IpMfVr4qCUmx841NstwYu7+pq8Mjq5AvzCbAPL0CyHAEIWJwM4z8se/OuFWKJk6SsBDaPJ9ti9m/YpMXzgRWBqpLAdg==
 
 build:
   pre_ci_boot:

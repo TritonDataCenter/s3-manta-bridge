@@ -1,7 +1,8 @@
 # S3 Manta Bridge
 
 This project allows you to use the S3 API to perform operations against a Manta 
-object store. It is a purely open source community maintained project.
+object store. It is a purely open source community maintained project and
+not officially supported by Joyent.
 
 The S3 Manta Bridge doesn't attempt to emulate all of the functionality of S3.
 Rather, it emulates a subset of functionality that is sufficient for migrating

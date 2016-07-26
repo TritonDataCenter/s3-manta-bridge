@@ -21,17 +21,14 @@ build:
 
   pre_ci:
     - mkdir -p shippable/testresults
-    - mkdir -p shippable/codecoverage
 
   ci:
     - npm install
-    - npm install --save-dev instanbul
+    - npm install tap-xunit
     - echo 'Running unit tests'
-    - npm test
+    - npm test | ./node_modules/.bin/tap-xunit > shippable/testresults/results.xml
 
   post_ci:
-    - ./node_modules/.bin/istanbul cover grunt -- -u tdd
-    - ./node_modules/.bin/istanbul report cobertura --dir  shippable/codecoverage/
 
   cache: true
 

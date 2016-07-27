@@ -21,6 +21,9 @@ build:
 
   pre_ci:
     - mkdir -p shippable/testresults
+    - mkdir -p .downloads
+    - wget -nc --retry-connrefused --tries=6 --directory-prefix=.downloads/ https://github.com/jwilder/docker-squash/releases/download/v0.2.0/docker-squash-linux-amd64-v0.2.0.tar.gz
+    - tar --directory /usr/local/bin -xvzf docker-squash-linux-amd64-v0.2.0.tar.gz
 
   ci:
     - npm install
@@ -38,3 +41,4 @@ build:
 
   cache_dir_list:
     - $SHIPPABLE_BUILD_DIR/node_modules
+    - $SHIPPABLE_BUILD_DIR/.downloads

@@ -1,0 +1,60 @@
+# Language setting
+language: node_js
+
+build_image: drydock/u14nod:prod
+
+# Version number
+node_js:
+  - 4.4.7
+
+env:
+  global:
+    - S3_BRIDGE_HOST=localhost XUNIT_FILE=shippable/testresults/result.xml
+    - secure: gvB1GYWALRhPsEkgW9pi/Fqo6JRmHjZ9vbuBiIWHiMrlCc00YqV0XcnN1uVrOOcJUc4aK/qcFAXiWgA83Rv/FBRvHXh1wvaayobwOJZlmuxFYDHJnd8LytUf4uRJy7OLhsH+BoxR6BrtCIefE1gZ757b2mYxYAE9vUpA2oZVFkBbPHUk3k/VpTyOdY5OXle07wdIcXGywX56tx4ko9R8bKfMUsiveTFxkWoWto99aIGm7oFyjGRH2pf5iC3IpMfVr4qCUmx841NstwYu7+pq8Mjq5AvzCbAPL0CyHAEIWJwM4z8se/OuFWKJk6SsBDaPJ9ti9m/YpMXzgRWBqpLAdg==
+
+build:
+  pre_ci_boot:
+    image_name: drydock/u14nod
+    image_tag: prod
+    pull: true
+    options: '--privileged=true --net=bridge'
+
+  pre_ci:
+    - mkdir -p shippable/testresults
+
+  ci:
+    - npm install
+    - npm install tap-xunit
+    - echo 'Running unit tests'
+    - npm test | ./node_modules/.bin/tap-xunit > shippable/testresults/unit.xml
+    - ls shippable/testresults/
+#    - ./node_modules/.bin/tape test/integration/nodejs/*.test.js | ./node_modules/.bin/tap-xunit > shippable/testresults/integration-nodejs.xml
+
+  post_ci:
+    - docker build --no-cache --rm -t dekobon/s3-manta-bridge:unsquashed .
+    - docker tag dekobon/s3-manta-bridge:unsquashed dekobon/s3-manta-bridge:unsquashed_$SHIPPABLE_BUILD_ID
+    - docker push dekobon/s3-manta-bridge:unsquashed
+    - docker push dekobon/s3-manta-bridge:unsquashed_$SHIPPABLE_BUILD_ID
+
+# Squashing images isn't supported yet
+#    - mkdir -p .downloads
+#    - wget -nc --retry-connrefused --tries=6 --directory-prefix=.downloads/ https://github.com/jwilder/docker-squash/releases/download/v0.2.0/docker-squash-linux-amd64-v0.2.0.tar.gz
+#    - tar --directory /usr/local/bin -xvzf .downloads/docker-squash-linux-amd64-v0.2.0.tar.gz
+#    - chmod +x /usr/local/bin/docker-squash
+#    - sudo docker save dekobon/s3-manta-bridge:unsquashed | /usr/local/bin/docker-squash -t dekobon/s3-manta-bridge:latest | docker load
+#    - docker tag dekobon/s3-manta-bridge:latest dekobon/s3-manta-bridge:squashed_$SHIPPABLE_BUILD_ID
+
+  cache: true
+
+  cache_dir_list:
+    - $SHIPPABLE_BUILD_DIR/node_modules
+    - $SHIPPABLE_BUILD_DIR/.downloads
+
+integrations:
+  hub:
+    - integrationName: DockerHub
+      type: docker
+      branches:
+        only:
+          - master
+          - shippable

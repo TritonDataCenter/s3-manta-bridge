@@ -20,7 +20,6 @@ build:
     options: '--privileged=true --net=bridge'
 
   pre_ci:
-    - pwd
     - mkdir -p shippable/testresults
 
   ci:
@@ -32,15 +31,13 @@ build:
 #    - ./node_modules/.bin/tape test/integration/nodejs/*.test.js | ./node_modules/.bin/tap-xunit > shippable/testresults/integration-nodejs.xml
 
   post_ci:
-    - pwd
     - mkdir -p .downloads
     - wget -nc --retry-connrefused --tries=6 --directory-prefix=.downloads/ https://github.com/jwilder/docker-squash/releases/download/v0.2.0/docker-squash-linux-amd64-v0.2.0.tar.gz
     - tar --directory /usr/local/bin -xvzf .downloads/docker-squash-linux-amd64-v0.2.0.tar.gz
     - chmod +x /usr/local/bin/docker-squash
-    - ls /usr/local/bin/
     - docker build --no-cache --rm -t dekobon/s3-manta-bridge:unsquashed .
     - docker tag dekobon/s3-manta-bridge:unsquashed dekobon/s3-manta-bridge:unsquashed_$SHIPPABLE_BUILD_ID
-    - docker save dekobon/s3-manta-bridge:unsquashed | /usr/local/bin/docker-squash -from root -t dekobon/s3-manta-bridge:latest | docker load
+    - sudo docker save dekobon/s3-manta-bridge:unsquashed | /usr/local/bin/docker-squash -from root -t dekobon/s3-manta-bridge:latest | docker load
     - docker tag dekobon/s3-manta-bridge:latest dekobon/s3-manta-bridge:squashed_$SHIPPABLE_BUILD_ID
 
   cache: true

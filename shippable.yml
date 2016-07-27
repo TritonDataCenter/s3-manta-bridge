@@ -52,7 +52,7 @@ build:
 integrations:
   hub:
     - integrationName: DockerHub
-      type: docker
+      type: "Docker Cloud"
       branches:
         only:
           - master

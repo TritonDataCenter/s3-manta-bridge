@@ -51,7 +51,7 @@ build:
 
 integrations:
   hub:
-    - integrationName: DockerHub
+    - integrationName: docker_cloud
       type: "Docker Cloud"
       branches:
         only:

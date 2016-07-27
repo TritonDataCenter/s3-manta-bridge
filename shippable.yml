@@ -20,11 +20,11 @@ build:
     options: '--privileged=true --net=bridge'
 
   pre_ci:
-    - mkdir -p .downloads
-    - mkdir -p .bin
-    - wget -nc --retry-connrefused --tries=6 --directory-prefix=.downloads/ https://github.com/jwilder/docker-squash/releases/download/v0.2.0/docker-squash-linux-amd64-v0.2.0.tar.gz
-    - tar --directory .bin/ -xvzf .downloads/docker-squash-linux-amd64-v0.2.0.tar.gz
-    - chmod +x .bin/docker-squash
+    - mkdir -p $SHIPPABLE_BUILD_DIR/.downloads
+    - mkdir -p $SHIPPABLE_BUILD_DIR/.bin
+    - wget -nc --retry-connrefused --tries=6 --directory-prefix=$SHIPPABLE_BUILD_DIR/.downloads/ https://github.com/jwilder/docker-squash/releases/download/v0.2.0/docker-squash-linux-amd64-v0.2.0.tar.gz
+    - tar --directory $SHIPPABLE_BUILD_DIR/.bin/ -xvzf $SHIPPABLE_BUILD_DIR/.downloads/docker-squash-linux-amd64-v0.2.0.tar.gz
+    - chmod +x $SHIPPABLE_BUILD_DIR/.bin/docker-squash
     - mkdir -p shippable/testresults
 
   ci:

@@ -55,5 +55,4 @@ integrations:
       type: "Docker Cloud"
       branches:
         only:
-          - master
           - shippable

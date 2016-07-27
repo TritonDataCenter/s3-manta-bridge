@@ -20,9 +20,8 @@ build:
     options: '--privileged=true --net=bridge'
 
   pre_ci:
+    - pwd
     - mkdir -p shippable/testresults
-    - mkdir -p .downloads
-    - wget -nc --retry-connrefused --tries=6 --directory-prefix=.downloads/ https://github.com/jwilder/docker-squash/releases/download/v0.2.0/docker-squash-linux-amd64-v0.2.0.tar.gz
 
   ci:
     - npm install
@@ -33,7 +32,9 @@ build:
 #    - ./node_modules/.bin/tape test/integration/nodejs/*.test.js | ./node_modules/.bin/tap-xunit > shippable/testresults/integration-nodejs.xml
 
   post_ci:
-    - "echo Docker client version: $(docker version | grep 'Version:' | cut -f2 -d':' | tr -d ' ')"
+    - pwd
+    - mkdir -p .downloads
+    - wget -nc --retry-connrefused --tries=6 --directory-prefix=.downloads/ https://github.com/jwilder/docker-squash/releases/download/v0.2.0/docker-squash-linux-amd64-v0.2.0.tar.gz
     - tar --directory /usr/local/bin -xvzf .downloads/docker-squash-linux-amd64-v0.2.0.tar.gz
     - chmod +x /usr/local/bin/docker-squash
     - ls /usr/local/bin/

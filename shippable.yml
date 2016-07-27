@@ -28,11 +28,11 @@ build:
     - echo 'Running unit tests'
     - npm test | ./node_modules/.bin/tap-xunit > shippable/testresults/unit.xml
     - ls shippable/testresults/
-    - ./node_modules/.bin/tape test/integration/nodejs/*.test.js | ./node_modules/.bin/tap-xunit > shippable/testresults/integration-nodejs.xml
+#    - ./node_modules/.bin/tape test/integration/nodejs/*.test.js | ./node_modules/.bin/tap-xunit > shippable/testresults/integration-nodejs.xml
 
   post_ci:
     - docker version
-    - docker build --no-cache --rm dekobon/s3-manta-bridge:unsquashed .
+    - docker build --no-cache --rm -t dekobon/s3-manta-bridge:unsquashed .
 
   cache: true
 

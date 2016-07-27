@@ -51,8 +51,9 @@ build:
 
 integrations:
   hub:
-    - integrationName: "Docker Cloud"
+    - integrationName: DockerHub
       type: docker
       branches:
         only:
+          - master
           - shippable

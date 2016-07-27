@@ -33,7 +33,7 @@ build:
 #    - ./node_modules/.bin/tape test/integration/nodejs/*.test.js | ./node_modules/.bin/tap-xunit > shippable/testresults/integration-nodejs.xml
 
   post_ci:
-    - echo "Docker client version: $(docker version | grep 'Version:' | cut -f2 -d':' | tr -d ' ')"
+    - echo Docker client version: $(docker version | grep 'Version:' | cut -f2 -d':' | tr -d ' ')
     - tar --directory /usr/local/bin -xvzf .downloads/docker-squash-linux-amd64-v0.2.0.tar.gz
     - chmod +x /usr/local/bin/docker-squash
     - ls /usr/local/bin/

@@ -37,7 +37,7 @@ build:
     - chmod +x /usr/local/bin/docker-squash
     - docker build --no-cache --rm -t dekobon/s3-manta-bridge:unsquashed .
     - docker tag dekobon/s3-manta-bridge:unsquashed dekobon/s3-manta-bridge:unsquashed_$SHIPPABLE_BUILD_ID
-    - sudo docker save dekobon/s3-manta-bridge:unsquashed | /usr/local/bin/docker-squash -from root -t dekobon/s3-manta-bridge:latest | docker load
+    - sudo docker save dekobon/s3-manta-bridge:unsquashed | /usr/local/bin/docker-squash -t dekobon/s3-manta-bridge:latest | docker load
     - docker tag dekobon/s3-manta-bridge:latest dekobon/s3-manta-bridge:squashed_$SHIPPABLE_BUILD_ID
 
   cache: true

@@ -2,6 +2,7 @@
   "authEnabled": true,
   "baseHostname": "$S3_BRIDGE_HOST",
   "serverPort": 8080,
+  "stripBucketPathFromAuth": false,
   "prettyPrint": true,
   "bucketPath": "~~/stor/s3_buckets",
   "baseSubdomain": "s3",

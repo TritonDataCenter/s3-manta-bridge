@@ -31,7 +31,8 @@
     "keyId": "$MANTA_KEY_ID",
     "url": "$MANTA_URL",
     "privateKeyPath": "$MANTA_KEY_PATH",
-    "connectTimeout": 4000
+    "connectTimeout": 4000,
+    "logLevel": "INFO"
   }
 }
 

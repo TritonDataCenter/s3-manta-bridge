@@ -59,7 +59,8 @@ RUN apt-get purge -qq -y python passenger-dev passenger-doc git \
                          python2.7-minimal build-essential && \
     apt-get autoremove -qq -y && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+    find /home/app/ -type d -name examples -or -name LICENSE -or -name README\* -or -name \*.md | xargs -L1 rm -rfv $1
 
 EXPOSE 80
 EXPOSE 443

@@ -60,6 +60,7 @@ environment variables interpolated in them using the format: `$XXXXX`.
 |---------------------------------|-------------------------------------------------------------------------------|--------------------|
 | authEnabled                     | Flag indicating if authentication is enabled                                  | true               |
 | baseHostname                    | Root hostname that subdomains are prefixed to                                 |                    |
+| stripBucketPathFromAuth         | Flag indicating if we drop the bucket path from path used for auth signing    | false              |
 | prettyPrint                     | Flag indicating to send output in a human-friendly manner                     | false              |
 | bucketPath                      | Path to directory in Manta containing buckets                                 | ~~/stor/s3_buckets |
 | baseSubdomain                   | Subdomain to assume if there is none specified                                | s3                 |

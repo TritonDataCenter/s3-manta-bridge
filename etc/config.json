@@ -2,6 +2,7 @@
   "authEnabled": true,
   "baseHostname": "$S3_BRIDGE_HOST",
   "serverPort": 8080,
+  "stripBucketPathFromAuth": false,
   "prettyPrint": true,
   "bucketPath": "~~/stor/s3_buckets",
   "baseSubdomain": "s3",
@@ -30,7 +31,8 @@
     "keyId": "$MANTA_KEY_ID",
     "url": "$MANTA_URL",
     "privateKeyPath": "$MANTA_KEY_PATH",
-    "connectTimeout": 4000
+    "connectTimeout": 4000,
+    "logLevel": "INFO"
   }
 }
 

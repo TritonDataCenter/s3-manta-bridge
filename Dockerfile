@@ -1,69 +1,62 @@
-FROM phusion/passenger-nodejs:0.9.19
+FROM alpine:latest
+MAINTAINER Elijah Zupancic <elijah@zupancic.name>
 
 ENV TZ=utc
-ENV PASSENGER_COMPILE_NATIVE_SUPPORT_BINARY 0
-ENV PASSENGER_DOWNLOAD_NATIVE_SUPPORT_BINARY=0
-
-# Setup apt-get so that it doesn't warn about a non-interactive tty
-RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
-
-# Add NodeSource key and create apt sources list file for the repo
-RUN curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - && \
-    echo 'deb https://deb.nodesource.com/node_4.x xenial main' > /etc/apt/sources.list.d/nodesource.list
-
-# Upgrade and add packages
-RUN apt-get update -qq && \
-    apt-get purge -qq -y openssh-server openssh-client openssh-sftp-server && \
-    apt-get install -qq -y python htop dc && \
-    apt-get upgrade -qq -y nodejs  && \
-    apt-get upgrade -qq -y -o Dpkg::Options::="--force-confold"  && \
-    apt-get autoremove -qq -y
-
-# Totally remove ssh, enable nginx, disable default nginx
-RUN rm -rf /etc/service/sshd /etc/my_init.d/00_regen_ssh_host_keys.sh \
-           /etc/service/nginx/down /etc/nginx/sites-enabled/default
-
-# Copy startup setup scripts
-COPY docker/etc/my_init.d/40_setup_bridge.sh /etc/my_init.d/40_setup_bridge.sh
-RUN chmod +x /etc/my_init.d/40_setup_bridge.sh
+ENV NODE_VERSION=4.4.7
+ENV HITCH_VERSION=1.2.0
 
 # Copy the application
 RUN mkdir -p /home/app/tmp
+COPY package.json /home/app/
+COPY docker/usr/local/bin/proclimit.sh /usr/local/bin/proclimit.sh
+
+RUN chmod +x /usr/local/bin/proclimit.sh \
+     && apk upgrade --update \
+     && apk add curl make gcc g++ linux-headers paxctl musl-dev git \
+        libgcc libstdc++ binutils-gold python openssl-dev zlib-dev \
+        libev-dev \
+     && mkdir -p /root/src \
+     && cd /root/src \
+     && curl -sSL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}.tar.xz > /tmp/node-v${NODE_VERSION}.tar.xz \
+     && echo "1ef900b9cb3ffb617c433a3247a9d67ff36c9455cbc9c34175bee24bdbfdf731  /tmp/node-v${NODE_VERSION}.tar.xz" | sha256sum -c \
+     && unxz -c /tmp/node-v${NODE_VERSION}.tar.xz | tar xf - \
+     && cd /root/src/node-* \
+     && ./configure --prefix=/usr --without-snapshot \
+     && make -j$(/usr/local/bin/proclimit.sh) \
+     && make install \
+     && paxctl -cm /usr/bin/node \
+     && npm cache clean \
+     && adduser -h /home/app -s /bin/sh -D app \
+     && cd /home/app \
+     && npm install --production \
+     && npm install pm2@next -g \
+     && cd /root/src \
+     && curl -sSL https://hitch-tls.org/source/hitch-${HITCH_VERSION}.tar.gz > /tmp/hitch-${HITCH_VERSION}.tar.gz \
+     && echo "cc836bfc6d0593284d0236f004e5ee8fd5e41fc3231d81ab4b69feb7a6b4ac41  /tmp/hitch-${HITCH_VERSION}.tar.gz" | sha256sum -c \
+     && tar xzf /tmp/hitch-${HITCH_VERSION}.tar.gz \
+     && cd /root/src/hitch-${HITCH_VERSION} \
+     && ./configure --prefix=/usr -with-rst2man=/bin/true \
+     && make -j$(/usr/local/bin/proclimit.sh) install \
+     && apk del make gcc g++ python linux-headers git openssl-dev \
+                paxctl musl-dev \
+     && rm -rf /root/src /tmp/* /usr/share/man /var/cache/apk/* \
+        /root/.npm /root/.node-gyp /usr/lib/node_modules/npm/man \
+        /usr/lib/node_modules/npm/doc /usr/lib/node_modules/npm/html \
+        /tmp/node-v${NODE_VERSION}.tar.xz \
+        /tmp/hitch-${HITCH_VERSION}.tar.gz \
+     && apk search --update
+
 COPY lib/ /home/app/lib
 COPY etc/ /home/app/etc
 COPY app.js /home/app/
-COPY package.json /home/app/
-COPY docker/etc /etc
-COPY docker/usr/local/bin/proclimit.sh /usr/local/bin/proclimit.sh
+COPY docker/home/app/process.yml /home/app/process.yml
 
-# Enable s3 Manta bridge configuration
-RUN ln -v -s /etc/nginx/sites-available/s3-manta-bridge.conf /etc/nginx/sites-enabled/s3-manta-bridge.conf
-
-# Make sure the app user owns the application home directory
 RUN chown -R app:app /home/app
-
-# Set executible bits needed for supplemental utilities
-RUN chmod +x /usr/local/bin/proclimit.sh
-
-USER app
-
-RUN cd /home/app && \
-    npm install --production
-
-USER root
-
-# Clean up apt and remove unneeded packages
-RUN apt-get purge -qq -y python passenger-dev passenger-doc git \
-                         gcc-4.8 g++-4.8 cpp-4.8 libc6-dev \
-                         libstdc++-4.8-dev geoip-database linux-libc-dev \
-                         python2.7-minimal build-essential && \
-    apt-get autoremove -qq -y && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
-    find /home/app/ -type d -name examples -or -name LICENSE -or -name README\* -or -name \*.md | xargs -L1 rm -rfv $1
 
 EXPOSE 80
 EXPOSE 443
+EXPOSE 43554
 
-# Use baseimage-docker's init process.
-CMD ["/sbin/my_init"]
+COPY docker/start.sh /start.sh
+RUN chmod 755 /start.sh
+CMD ["/start.sh"]

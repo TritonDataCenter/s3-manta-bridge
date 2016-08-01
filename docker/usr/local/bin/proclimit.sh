@@ -3,9 +3,6 @@
 PATH=/usr/bin
 if [[ -d /native ]]; then
     PATH=/native/usr/bin
-else
-    grep -c ^processor /proc/cpuinfo 2>/dev/null || 1
-    exit 0
 fi
 
 set -o errexit

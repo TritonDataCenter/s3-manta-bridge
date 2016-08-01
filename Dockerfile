@@ -3,7 +3,7 @@ MAINTAINER Elijah Zupancic <elijah@zupancic.name>
 
 ENV TZ=utc
 ENV NODE_VERSION=4.4.7
-ENV HITCH_VERSION=1.2.0
+ENV DUMB_INIT_VERSION=1.1.2
 
 # Copy the application
 RUN mkdir -p /home/app/tmp
@@ -22,7 +22,7 @@ RUN chmod +x /usr/local/bin/proclimit.sh \
      && unxz -c /tmp/node-v${NODE_VERSION}.tar.xz | tar xf - \
      && cd /root/src/node-* \
      && ./configure --prefix=/usr --without-snapshot \
-     && make -j$(/usr/local/bin/proclimit.sh) \
+     && make -j$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) \
      && make install \
      && paxctl -cm /usr/bin/node \
      && npm cache clean \
@@ -36,7 +36,7 @@ RUN chmod +x /usr/local/bin/proclimit.sh \
      && tar xzf /tmp/hitch-${HITCH_VERSION}.tar.gz \
      && cd /root/src/hitch-${HITCH_VERSION} \
      && ./configure --prefix=/usr -with-rst2man=/bin/true \
-     && make -j$(/usr/local/bin/proclimit.sh) install \
+     && make -j$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) install \
      && apk del make gcc g++ python linux-headers git openssl-dev \
                 paxctl musl-dev \
      && rm -rf /root/src /tmp/* /usr/share/man /var/cache/apk/* \
@@ -44,7 +44,10 @@ RUN chmod +x /usr/local/bin/proclimit.sh \
         /usr/lib/node_modules/npm/doc /usr/lib/node_modules/npm/html \
         /tmp/node-v${NODE_VERSION}.tar.xz \
         /tmp/hitch-${HITCH_VERSION}.tar.gz \
-     && apk search --update
+     && apk search --update \
+     && curl -sSL https://github.com/Yelp/dumb-init/releases/download/v${DUMB_INIT_VERSION}/dumb-init_${DUMB_INIT_VERSION}_amd64 > /usr/local/bin/dumb-init \
+     && echo 'fa3743ec2a24482932065d750fd8abb1c2cdf24f1fde54c9e6d5053822c694c0  /usr/local/bin/dumb-init' | sha256sum -c \
+     && chmod +x /usr/local/bin/dumb-init
 
 COPY lib/ /home/app/lib
 COPY etc/ /home/app/etc
@@ -59,4 +62,4 @@ EXPOSE 43554
 
 COPY docker/start.sh /start.sh
 RUN chmod 755 /start.sh
-CMD ["/start.sh"]
+CMD ["/usr/local/bin/dumb-init", "/start.sh"]

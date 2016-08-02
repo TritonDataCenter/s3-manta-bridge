@@ -42,5 +42,19 @@ else
     export PROC_LIMIT="$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1)"
 fi
 
-cd /home/app
-HOME=/home/app exec pm2-docker start process.yml --json-logs bunyan
+# Explicitly set Nginx worker processes based on process limit setting
+sed -i "s/worker_processes [[:digit:]]\+;/worker_processes $PROC_LIMIT;/" /etc/nginx/nginx.conf
+
+# Explicitly set the number of node instances to the process limit setting
+sed -i "s/instances: [[:digit:]]\+/instances: $PROC_LIMIT/" /home/app/process.yml
+
+# Copy and configure TLS certificates
+/usr/local/bin/load_tls_env.sh
+
+# Unset potentially sensitive environment variables
+unset MANTA_KEY_CONTENT
+unset TLS_CERT
+unset TLS_CERT_KEY
+
+# Run the init system and execute the CMD passed to the container
+exec /init $@

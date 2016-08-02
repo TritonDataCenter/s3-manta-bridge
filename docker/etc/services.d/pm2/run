@@ -1,0 +1,4 @@
+#!/usr/bin/with-contenv sh
+
+cd /home/app
+HOME=/home/app exec su -c "pm2-docker start process.yml" app

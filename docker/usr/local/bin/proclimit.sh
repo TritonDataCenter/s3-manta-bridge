@@ -1,4 +1,4 @@
-#!/usr/bin/ksh93
+#!/native/usr/bin/ksh93
 
 PATH=/usr/bin
 if [[ -d /native ]]; then

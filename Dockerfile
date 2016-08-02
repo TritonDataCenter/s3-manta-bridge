@@ -1,9 +1,8 @@
-FROM alpine:latest
+FROM smebberson/alpine-base:3.0.0
 MAINTAINER Elijah Zupancic <elijah@zupancic.name>
 
 ENV TZ=utc
 ENV NODE_VERSION=4.4.7
-ENV DUMB_INIT_VERSION=1.1.2
 
 # Copy the application
 RUN mkdir -p /home/app/tmp
@@ -14,7 +13,7 @@ RUN chmod +x /usr/local/bin/proclimit.sh \
      && apk upgrade --update \
      && apk add curl make gcc g++ linux-headers paxctl musl-dev git \
         libgcc libstdc++ binutils-gold python openssl-dev zlib-dev \
-        libev-dev \
+        nginx \
      && mkdir -p /root/src \
      && cd /root/src \
      && curl -sSL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}.tar.xz > /tmp/node-v${NODE_VERSION}.tar.xz \
@@ -30,36 +29,32 @@ RUN chmod +x /usr/local/bin/proclimit.sh \
      && cd /home/app \
      && npm install --production \
      && npm install pm2@next -g \
-     && cd /root/src \
-     && curl -sSL https://hitch-tls.org/source/hitch-${HITCH_VERSION}.tar.gz > /tmp/hitch-${HITCH_VERSION}.tar.gz \
-     && echo "cc836bfc6d0593284d0236f004e5ee8fd5e41fc3231d81ab4b69feb7a6b4ac41  /tmp/hitch-${HITCH_VERSION}.tar.gz" | sha256sum -c \
-     && tar xzf /tmp/hitch-${HITCH_VERSION}.tar.gz \
-     && cd /root/src/hitch-${HITCH_VERSION} \
-     && ./configure --prefix=/usr -with-rst2man=/bin/true \
-     && make -j$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) install \
+     && find /home/app/node_modules/ -name \*.md -type f | xargs rm -rf $1 \
+     && find /home/app/node_modules/ -name docs -or -name examples -type d | xargs rm -rf $1 \
      && apk del make gcc g++ python linux-headers git openssl-dev \
-                paxctl musl-dev \
+                paxctl musl-dev binutils-gold openssl-dev zlib-dev \
      && rm -rf /root/src /tmp/* /usr/share/man /var/cache/apk/* \
         /root/.npm /root/.node-gyp /usr/lib/node_modules/npm/man \
         /usr/lib/node_modules/npm/doc /usr/lib/node_modules/npm/html \
-        /tmp/node-v${NODE_VERSION}.tar.xz \
-        /tmp/hitch-${HITCH_VERSION}.tar.gz \
-     && apk search --update \
-     && curl -sSL https://github.com/Yelp/dumb-init/releases/download/v${DUMB_INIT_VERSION}/dumb-init_${DUMB_INIT_VERSION}_amd64 > /usr/local/bin/dumb-init \
-     && echo 'fa3743ec2a24482932065d750fd8abb1c2cdf24f1fde54c9e6d5053822c694c0  /usr/local/bin/dumb-init' | sha256sum -c \
-     && chmod +x /usr/local/bin/dumb-init
+        /etc/ssl /usr/include \
+        /tmp/node-v${NODE_VERSION}.tar.xz
+
 
 COPY lib/ /home/app/lib
 COPY etc/ /home/app/etc
 COPY app.js /home/app/
 COPY docker/home/app/process.yml /home/app/process.yml
+COPY docker/etc/ /etc
+COPY docker/usr/local/bin/load_tls_env.sh /usr/local/bin/load_tls_env.sh
+COPY docker/init-wrapper /init-wrapper
 
-RUN chown -R app:app /home/app
+RUN chown -R app:app /home/app \
+    && chmod -v +x /usr/local/bin/load_tls_env.sh \
+    && chmod -v +x /init-wrapper \
+    && mkdir -p /etc/nginx/sites-enabled \
+    && ln -s /etc/nginx/sites-available/s3-manta-bridge.conf /etc/nginx/sites-enabled/s3-manta-bridge.conf
 
 EXPOSE 80
 EXPOSE 443
-EXPOSE 43554
 
-COPY docker/start.sh /start.sh
-RUN chmod 755 /start.sh
-CMD ["/usr/local/bin/dumb-init", "/start.sh"]
+ENTRYPOINT ["/init-wrapper"]

@@ -1,0 +1,6 @@
+apps:
+  - name: s3-manta-bridge
+    script: app.js
+    cwd: /home/app
+    instances: 1
+    exec_mode: cluster

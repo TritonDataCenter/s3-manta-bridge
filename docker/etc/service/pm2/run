@@ -1,0 +1,5 @@
+#!/bin/sh
+set -e
+
+cd /home/app
+HOME=/home/app exec su -c "pm2-docker start process.yml" app;

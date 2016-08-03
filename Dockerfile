@@ -69,6 +69,7 @@ RUN chown -R app:app /home/app \
     && chmod -v +x /etc/service/nginx/run \
     && chmod -v +x /etc/service/pm2/run \
     && mkdir -p /etc/nginx/sites-enabled \
+    && ln -s /etc/service /service \
     && ln -s /etc/nginx/sites-available/s3-manta-bridge.conf /etc/nginx/sites-enabled/s3-manta-bridge.conf
 
 EXPOSE 80

@@ -56,5 +56,16 @@ unset MANTA_KEY_CONTENT
 unset TLS_CERT
 unset TLS_CERT_KEY
 
-# Run the init system and execute the CMD passed to the container
-exec /init $@
+sv_stop() {
+    for s in $(ls -d /etc/service/*)
+    do
+        /sbin/sv stop $s
+    done
+}
+
+trap "sv_stop; exit" SIGTERM
+/sbin/runsvdir /etc/service &
+wait
+
+# Run the init system
+exec /usr/local/bin/runsvinit runsvdir -P /etc/service/

@@ -54,7 +54,7 @@ a typical run command would look like:
 docker run \
     -d \
     -p 80:80 -p 443:443 \
-    -e MANTA_KEY_CONTENT="$(cat ~/.ssh/id_rsa)" \
+    -e MANTA_KEY_CONTENT="$(cat ~/.ssh/manta_user_id_rsa)" \
     -e MANTA_KEY_ID="$MANTA_KEY_ID" \
     -e MANTA_URL="$MANTA_URL" \
     -e MANTA_USER="$MANTA_USER" \

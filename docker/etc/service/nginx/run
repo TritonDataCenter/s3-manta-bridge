@@ -3,4 +3,4 @@ set -e
 
 sv start pm2 || exit 1
 
-exec /usr/sbin/nginx -c /etc/nginx/nginx.conf  -g "daemon off;"
+exec /usr/sbin/nginx -c /etc/nginx/nginx.conf;

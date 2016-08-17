@@ -23,7 +23,7 @@ RUN chmod +x /usr/local/bin/proclimit.sh \
      && mkdir -p /root/src/runit \
      && tar -C /root/src/runit -xzf /tmp/runit-${RUNIT_VERSION}.tar.gz \
      && cd /root/src/runit/admin/runit-${RUNIT_VERSION}/src \
-     && make -j$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) \
+     && make -j$(/usr/local/bin/proclimit.sh || grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) \
      && cd .. \
      && cat package/commands | xargs -I {} mv -f src/{} /sbin/ \
      && cd /root/src \
@@ -32,7 +32,7 @@ RUN chmod +x /usr/local/bin/proclimit.sh \
      && unxz -c /tmp/node-v${NODE_VERSION}.tar.xz | tar xf - \
      && cd /root/src/node-* \
      && ./configure --prefix=/usr --without-snapshot \
-     && make -j$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) \
+     && make -j$(/usr/local/bin/proclimit.sh || grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) \
      && make install \
      && paxctl -cm /usr/bin/node \
      && npm cache clean \

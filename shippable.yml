@@ -28,6 +28,8 @@ build:
     - echo 'Running unit tests'
     - npm test | ./node_modules/.bin/tap-xunit > shippable/testresults/unit.xml
     - ls shippable/testresults/
+    - git tag -a build-$BUILD_NUMBER -m "Build for committ $COMMIT"
+    - git push --follow-tags
 #    - ./node_modules/.bin/tape test/integration/nodejs/*.test.js | ./node_modules/.bin/tap-xunit > shippable/testresults/integration-nodejs.xml
 
   post_ci:

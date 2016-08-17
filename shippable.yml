@@ -31,7 +31,6 @@ build:
 
   post_ci:
     - git tag -a build-$BUILD_NUMBER -m "Build for committ $COMMIT"
-    - git push --follow-tags
     - docker build --no-cache --rm -t dekobon/s3-manta-bridge:$BRANCH .
     - docker push dekobon/s3-manta-bridge:$BRANCH
 

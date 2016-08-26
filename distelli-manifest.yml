@@ -3,9 +3,9 @@ ez/s3-manta-bridge:
     - RepoType: Git
     - RepoPath: .
   Build:
-    - docker login -u "$DISTELLI_DOCKER_USERNAME" -p $DISTELLI_DOCKER_PW -e "$DISTELLI_DOCKER_EMAIL" $DISTELLI_DOCKER_ENDPOINT
     - docker build -t dekobon/s3-manta-bridge-test -f Dockerfile.test .
     - docker run -it --rm dekobon/s3-manta-bridge-test
+    - docker login -u "$DISTELLI_DOCKER_USERNAME" -p $DISTELLI_DOCKER_PW -e "$DISTELLI_DOCKER_EMAIL" $DISTELLI_DOCKER_ENDPOINT
     - docker build --no-cache --rm --quiet=false -t "$DISTELLI_DOCKER_REPO" $DISTELLI_DOCKER_PATH
     - docker tag "$DISTELLI_DOCKER_REPO" "$DISTELLI_DOCKER_REPO:$DISTELLI_BUILDNUM"
     - docker push "$DISTELLI_DOCKER_REPO:$DISTELLI_BUILDNUM"

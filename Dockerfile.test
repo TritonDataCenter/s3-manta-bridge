@@ -9,7 +9,6 @@ ENV NODE_VERSION=4.5.0
 
 # Copy the application
 RUN mkdir -p /home/app/tmp
-COPY package.json /home/app/
 COPY docker/usr/local/bin/proclimit.sh /usr/local/bin/proclimit.sh
 
 RUN chmod +x /usr/local/bin/proclimit.sh \
@@ -23,21 +22,27 @@ RUN chmod +x /usr/local/bin/proclimit.sh \
      && unxz -c /tmp/node-v${NODE_VERSION}.tar.xz | tar xf - \
      && cd /root/src/node-* \
      && ./configure --prefix=/usr --without-snapshot \
-     && make -j$(/usr/local/bin/proclimit.sh || grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) \
-     && make install \
+     && make -j$(/usr/local/bin/proclimit.sh || grep -c ^processor /proc/cpuinfo 2>/dev/null || 1)
+
+RUN make install \
      && paxctl -cm /usr/bin/node \
      && npm cache clean \
      && adduser -h /home/app -s /bin/sh -D app \
-     && cd /home/app \
+
+COPY . /home/app
+
+RUN cd /home/app \
      && npm install \
      && find /home/app/node_modules/ -name \*.md -type f | xargs rm -rf $1 \
      && find /home/app/node_modules/ -name docs -or -name examples -type d | xargs rm -rf $1 \
-     && rm -rf /root/src /tmp/* /usr/share/man /var/cache/apk/* \
+
+# This doesn't save any space on the container, but it removes all of the files
+# that would be removed in the production container.
+RUN rm -rf /root/src /tmp/* /usr/share/man /var/cache/apk/* \
         /root/.npm /root/.node-gyp /usr/lib/node_modules/npm/man \
         /usr/lib/node_modules/npm/doc /usr/lib/node_modules/npm/html \
         /etc/ssl /usr/include /tmp/node-v${NODE_VERSION}.tar.xz
 
-COPY . /home/app
 
 RUN chown -R app:app /home/app
 

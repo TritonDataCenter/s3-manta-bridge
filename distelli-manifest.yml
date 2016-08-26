@@ -6,6 +6,7 @@ ez/s3-manta-bridge:
     - curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
     - sudo apt-get install -y nodejs
   Build:
+    - echo Node version: `nodejs --version`
     - npm install
     - npm install tap-xunit
     - echo 'Running unit tests'

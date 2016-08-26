@@ -27,6 +27,8 @@ build:
     - npm install tap-xunit
     - echo 'Running unit tests'
     - npm test | ./node_modules/.bin/tap-xunit > shippable/testresults/unit.xml
+    - docker build -t dekobon/s3-manta-bridge-test -f Dockerfile.test .
+    - docker run --rm dekobon/s3-manta-bridge-test
 #    - ./node_modules/.bin/tape test/integration/nodejs/*.test.js | ./node_modules/.bin/tap-xunit > shippable/testresults/integration-nodejs.xml
 
   post_ci:

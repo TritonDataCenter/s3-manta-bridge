@@ -1,4 +1,4 @@
-dekobon/s3-manta-bridge:
+ez/s3-manta-bridge:
   Build:
     - npm install
     - npm install tap-xunit

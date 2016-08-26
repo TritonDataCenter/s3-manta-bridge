@@ -3,7 +3,7 @@ MAINTAINER Elijah Zupancic <elijah@zupancic.name>
 
 ENV TZ=utc
 ENV RUNIT_VERSION=2.1.2
-ENV NODE_VERSION=4.4.7
+ENV NODE_VERSION=4.5.0
 ENV RUNSVINIT_VERSION=2.0.0
 
 # Copy the application
@@ -28,7 +28,7 @@ RUN chmod +x /usr/local/bin/proclimit.sh \
      && cat package/commands | xargs -I {} mv -f src/{} /sbin/ \
      && cd /root/src \
      && curl -sSL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}.tar.xz > /tmp/node-v${NODE_VERSION}.tar.xz \
-     && echo "1ef900b9cb3ffb617c433a3247a9d67ff36c9455cbc9c34175bee24bdbfdf731  /tmp/node-v${NODE_VERSION}.tar.xz" | sha256sum -c \
+     && echo "97b99d378c56802444208409568e2e66c46332897f06aead74d1ffbe733bd488  /tmp/node-v${NODE_VERSION}.tar.xz" | sha256sum -c \
      && unxz -c /tmp/node-v${NODE_VERSION}.tar.xz | tar xf - \
      && cd /root/src/node-* \
      && ./configure --prefix=/usr --without-snapshot \

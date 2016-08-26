@@ -1,4 +1,7 @@
 ez/s3-manta-bridge:
+  CommitData:
+    - RepoType: Git
+    - RepoPath: .
   PreBuild:
     - curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
     - sudo apt-get install -y nodejs
@@ -7,7 +10,7 @@ ez/s3-manta-bridge:
     - npm install tap-xunit
     - echo 'Running unit tests'
     - mkdir out
-    - npm test | ./node_modules/.bin/tap-xunit > $XUNIT_FILE
+    - npm test
     - docker login -u "$DISTELLI_DOCKER_USERNAME" -p $DISTELLI_DOCKER_PW -e "$DISTELLI_DOCKER_EMAIL" $DISTELLI_DOCKER_ENDPOINT
     - docker build --no-cache --rm --quiet=false -t "$DISTELLI_DOCKER_REPO" $DISTELLI_DOCKER_PATH
     - docker tag "$DISTELLI_DOCKER_REPO" "$DISTELLI_DOCKER_REPO:$DISTELLI_BUILDNUM"

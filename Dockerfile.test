@@ -24,10 +24,12 @@ RUN chmod +x /usr/local/bin/proclimit.sh \
      && ./configure --prefix=/usr --without-snapshot \
      && make -j$(/usr/local/bin/proclimit.sh || grep -c ^processor /proc/cpuinfo 2>/dev/null || 1)
 
-RUN make install \
+RUN cd /root/src/node-* \
+     && make install \
      && paxctl -cm /usr/bin/node \
-     && npm cache clean \
-     && adduser -h /home/app -s /bin/sh -D app \
+     && npm cache clean
+
+RUN adduser -h /home/app -s /bin/sh -D app
 
 COPY . /home/app
 

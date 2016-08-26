@@ -1,0 +1,47 @@
+# This Dockerfile is soley intented for running automated tests in an environment
+# that is nearly identical to the deployed Docker environment.
+
+FROM alpine:3.4
+MAINTAINER Elijah Zupancic <elijah@zupancic.name>
+
+ENV TZ=utc
+ENV NODE_VERSION=4.5.0
+
+# Copy the application
+RUN mkdir -p /home/app/tmp
+COPY package.json /home/app/
+COPY docker/usr/local/bin/proclimit.sh /usr/local/bin/proclimit.sh
+
+RUN chmod +x /usr/local/bin/proclimit.sh \
+     && apk upgrade --update \
+     && apk add curl make gcc g++ linux-headers paxctl musl-dev git \
+        libgcc libstdc++ binutils-gold python openssl-dev zlib-dev \
+     && mkdir -p /root/src \
+     && cd /root/src \
+     && curl -sSL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}.tar.xz > /tmp/node-v${NODE_VERSION}.tar.xz \
+     && echo "97b99d378c56802444208409568e2e66c46332897f06aead74d1ffbe733bd488  /tmp/node-v${NODE_VERSION}.tar.xz" | sha256sum -c \
+     && unxz -c /tmp/node-v${NODE_VERSION}.tar.xz | tar xf - \
+     && cd /root/src/node-* \
+     && ./configure --prefix=/usr --without-snapshot \
+     && make -j$(/usr/local/bin/proclimit.sh || grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) \
+     && make install \
+     && paxctl -cm /usr/bin/node \
+     && npm cache clean \
+     && adduser -h /home/app -s /bin/sh -D app \
+     && cd /home/app \
+     && npm install \
+     && find /home/app/node_modules/ -name \*.md -type f | xargs rm -rf $1 \
+     && find /home/app/node_modules/ -name docs -or -name examples -type d | xargs rm -rf $1 \
+     && rm -rf /root/src /tmp/* /usr/share/man /var/cache/apk/* \
+        /root/.npm /root/.node-gyp /usr/lib/node_modules/npm/man \
+        /usr/lib/node_modules/npm/doc /usr/lib/node_modules/npm/html \
+        /etc/ssl /usr/include /tmp/node-v${NODE_VERSION}.tar.xz
+
+COPY . /home/app
+
+RUN chown -R app:app /home/app
+
+USER app
+WORKDIR /home/app
+
+CMD ["/usr/bin/npm", "test"]

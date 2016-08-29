@@ -61,7 +61,7 @@ let test = require('wrapping-tape')({
     teardown: teardown
 });
 
-tape.onFinish(function cleanup() {
+tape.onFinish(function cleanup(cb) {
     /* eslint-disable no-console */
     console.log('# onFinish');
 
@@ -70,6 +70,15 @@ tape.onFinish(function cleanup() {
         manta.close();
     }
     /* eslint-enable no-console */
+
+    if (global.serverProcess) {
+        global.serverProcess.kill();
+        global.serverProcess = null;
+    }
+
+    if (cb) {
+        return cb();
+    }
 });
 
 module.exports = {

@@ -85,7 +85,7 @@ public cloud or a private Manta instance.
 
 #### Bugs
 
-See <https://github.com/dekobon/s3-manta-bridge/issues>.
+See <https://github.com/joyent/s3-manta-bridge/issues>.
 
 #### License
 

@@ -4,7 +4,7 @@ We love pull requests from everyone.
 
 Fork, then clone the repo:
 
-    git clone git@github.com:your-username/dekobon/s3-manta-bridge.git
+    git clone git@github.com:your-username/joyent/s3-manta-bridge.git
 
 For running integration tests, you will need an account on a Manta system this could
 be the [Joyent Public Cloud](https://www.joyent.com/public-cloud) or an 
@@ -31,7 +31,7 @@ Add your changes to the CHANGELOG.md and commit.
 
 Push to your fork and [submit a pull request][pr].
 
-[pr]: https://github.com/dekobon/s3-manta-bridge/compare/
+[pr]: https://github.com/joyent/s3-manta-bridge/compare/
 
 At this point you're waiting on us. We like to at least comment on pull requests
 within three business days (and, typically, one business day). We may suggest

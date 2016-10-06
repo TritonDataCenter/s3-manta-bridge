@@ -1,5 +1,3 @@
-[![Run Status](https://api.shippable.com/projects/5775933e3be4f4faa56b648d/badge?branch=master)](https://app.shippable.com/projects/5775933e3be4f4faa56b648d)
-
 # S3 Manta Bridge
 
 This project allows you to use the S3 API to perform operations against a Manta 
